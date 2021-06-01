@@ -223,6 +223,8 @@ template <class T>
 #include <__utility/rel_ops.h>
 #include <__utility/swap.h>
 #include <__utility/to_underlying.h>
+// FIXME (rarutyun): return back <compare> include when
+//                   cyclic dependency for this header is resolved
 #include <compare>
 #include <initializer_list>
 #include <version>
