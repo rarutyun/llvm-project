@@ -482,6 +482,23 @@ template<class _Tp> constexpr strong_ordering strong_order(const _Tp& __lhs, con
 template<class _Tp> constexpr weak_ordering weak_order(const _Tp& __lhs, const _Tp& __rhs);
 template<class _Tp> constexpr partial_ordering partial_order(const _Tp& __lhs, const _Tp& __rhs);
 
+// [cmp.result], result of three-way comparison
+template<typename _Tp, typename _Up>
+using __compare_three_way_result_type = decltype(declval<__make_const_lvalue_ref<_Tp>>() <=>
+                                                 declval<__make_const_lvalue_ref<_Up>>());
+
+template<class _Tp, class _Up = _Tp>
+struct compare_three_way_result {};
+
+template<class _Tp, class _Up>
+  requires requires { typename __compare_three_way_result_type<_Tp, _Up>; }
+struct compare_three_way_result<_Tp, _Up> {
+  using type = __compare_three_way_result_type<_Tp, _Up>;
+};
+
+template<class _Tp, class _Up = _Tp>
+using compare_three_way_result_t = typename compare_three_way_result<_Tp, _Up>::type;
+
 #endif // _LIBCPP_STD_VER > 17 && !defined(_LIBCPP_HAS_NO_SPACESHIP_OPERATOR)
 
 _LIBCPP_END_NAMESPACE_STD
