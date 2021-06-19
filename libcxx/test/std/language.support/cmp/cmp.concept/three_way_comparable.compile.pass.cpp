@@ -26,9 +26,17 @@ static_assert(std::three_way_comparable<char const*>);
 static_assert(std::three_way_comparable<char volatile*>);
 static_assert(std::three_way_comparable<char const volatile*>);
 static_assert(std::three_way_comparable<wchar_t&>);
+#ifndef _LIBCPP_HAS_NO_CHAR8_T
 static_assert(std::three_way_comparable<char8_t const&>);
+#endif
+#ifndef _LIBCPP_HAS_NO_UNICODE_CHARS
 static_assert(std::three_way_comparable<char16_t volatile&>);
 static_assert(std::three_way_comparable<char32_t const volatile&>);
+#endif
+#ifndef _LIBCPP_HAS_NO_INT128
+static_assert(std::three_way_comparable<__int128_t const&>);
+static_assert(std::three_way_comparable<__uint128_t const&>);
+#endif
 static_assert(std::three_way_comparable<unsigned char&&>);
 static_assert(std::three_way_comparable<unsigned short const&&>);
 static_assert(std::three_way_comparable<unsigned int volatile&&>);
@@ -113,6 +121,110 @@ struct S {
 static_assert(std::three_way_comparable<S>);
 static_assert(std::three_way_comparable<S, std::strong_ordering>);
 static_assert(std::three_way_comparable<S, std::partial_ordering>);
+
+struct SpaceshipNotDeclared {
+};
+
+static_assert(!std::three_way_comparable<SpaceshipNotDeclared>);
+
+struct SpaceshipDeleted {
+    auto operator<=>(const SpaceshipDeleted&) const = delete;
+};
+
+static_assert(!std::three_way_comparable<SpaceshipDeleted>);
+
+struct SpaceshipWithoutEqualityOperator {
+    auto operator<=>(const SpaceshipWithoutEqualityOperator&) const;
+};
+
+static_assert(!std::three_way_comparable<SpaceshipWithoutEqualityOperator>);
+
+struct EqualityOperatorDeleted {
+    bool operator==(const EqualityOperatorDeleted&) const = delete;
+};
+
+static_assert(!std::three_way_comparable<EqualityOperatorDeleted>);
+
+struct EqualityOperatorOnly {
+    bool operator==(const EqualityOperatorOnly&) const = default;
+};
+
+static_assert(!std::three_way_comparable<EqualityOperatorOnly>);
+
+struct SpaceshipDeclaredEqualityOperatorDeleted {
+    bool operator==(const SpaceshipDeclaredEqualityOperatorDeleted&) const = delete;
+    auto operator<=>(const SpaceshipDeclaredEqualityOperatorDeleted&) const = default;
+};
+
+static_assert(!std::three_way_comparable<SpaceshipDeclaredEqualityOperatorDeleted>);
+
+struct AllInequalityOperators {
+    bool operator<(const AllInequalityOperators&) const;
+    bool operator<=(const AllInequalityOperators&) const;
+    bool operator>(const AllInequalityOperators&) const;
+    bool operator>=(const AllInequalityOperators&) const;
+    bool operator!=(const AllInequalityOperators&) const;
+};
+
+static_assert(!std::three_way_comparable<AllInequalityOperators>);
+
+struct AllComparisonOperators {
+    bool operator<(const AllComparisonOperators&) const;
+    bool operator<=(const AllComparisonOperators&) const;
+    bool operator>(const AllComparisonOperators&) const;
+    bool operator>=(const AllComparisonOperators&) const;
+    bool operator!=(const AllComparisonOperators&) const;
+    bool operator==(const AllComparisonOperators&) const;
+};
+
+static_assert(!std::three_way_comparable<AllComparisonOperators>);
+
+struct AllButOneInequalityOperators {
+    bool operator<(const AllButOneInequalityOperators&) const;
+    bool operator<=(const AllButOneInequalityOperators&) const;
+    bool operator>(const AllButOneInequalityOperators&) const;
+    bool operator!=(const AllButOneInequalityOperators&) const;
+};
+
+static_assert(!std::three_way_comparable<AllButOneInequalityOperators>);
+
+struct AllInequalityOperatorsOneDeleted {
+    bool operator<(const AllInequalityOperatorsOneDeleted&) const;
+    bool operator<=(const AllInequalityOperatorsOneDeleted&) const;
+    bool operator>(const AllInequalityOperatorsOneDeleted&) const;
+    bool operator>=(const AllInequalityOperatorsOneDeleted&) const = delete;
+    bool operator!=(const AllInequalityOperatorsOneDeleted&) const;
+};
+
+static_assert(!std::three_way_comparable<AllInequalityOperatorsOneDeleted>);
+
+struct EqualityOperatorWrongReturnType {
+    int operator==(const EqualityOperatorWrongReturnType&);
+    auto operator<=>(const EqualityOperatorWrongReturnType&) const = default;
+};
+
+static_assert(!std::three_way_comparable<EqualityOperatorWrongReturnType>);
+
+struct SpaceshipWrongReturnType {
+    bool operator==(const SpaceshipWrongReturnType&) const = default;
+    int operator<=>(const SpaceshipWrongReturnType&);
+};
+
+static_assert(!std::three_way_comparable<SpaceshipWrongReturnType>);
+
+struct EqualityOperatorNonConstArgument {
+    bool operator==(EqualityOperatorNonConstArgument&);
+    auto operator<=>(const EqualityOperatorNonConstArgument&) const = default;
+};
+
+static_assert(!std::three_way_comparable<EqualityOperatorNonConstArgument>);
+
+struct SpaceshipNonConstArgument {
+    bool operator==(const SpaceshipNonConstArgument&) const = default;
+    auto operator<=>(SpaceshipNonConstArgument&);
+};
+
+static_assert(!std::three_way_comparable<SpaceshipNonConstArgument>);
 }
 
 int main(int, char**) { return 0; }
