@@ -80,6 +80,7 @@ static_assert(!std::three_way_comparable<int (&)(int)>);
 static_assert(!std::three_way_comparable<int (*)(int) noexcept>);
 static_assert(!std::three_way_comparable<int (&)(int) noexcept>);
 static_assert(!std::three_way_comparable<std::nullptr_t>);
+static_assert(!std::three_way_comparable<void>);
 
 struct S {};
 static_assert(!std::three_way_comparable<int S::*>);
@@ -106,10 +107,7 @@ static_assert(!std::three_way_comparable<int (S::*)() const volatile noexcept>);
 static_assert(!std::three_way_comparable<int (S::*)() const volatile&>);
 static_assert(!std::three_way_comparable<int (S::*)() const volatile & noexcept>);
 static_assert(!std::three_way_comparable<int (S::*)() const volatile&&>);
-static_assert(
-    !std::three_way_comparable<int (S::*)() const volatile && noexcept>);
-
-static_assert(!std::three_way_comparable<void>);
+static_assert(!std::three_way_comparable<int (S::*)() const volatile && noexcept>);
 } // namespace fundamentals
 
 namespace user_defined {
@@ -225,6 +223,4 @@ struct SpaceshipNonConstArgument {
 };
 
 static_assert(!std::three_way_comparable<SpaceshipNonConstArgument>);
-}
-
-int main(int, char**) { return 0; }
+} // namespace user_defined

@@ -46,17 +46,17 @@ constexpr bool check_three_way_comparable_with() {
 namespace fundamentals {
 static_assert(check_three_way_comparable_with<int, int>());
 static_assert(check_three_way_comparable_with<int, char>());
-static_assert(check_three_way_comparable_with<int, wchar_t>());
+static_assert(!check_three_way_comparable_with<int, unsigned int>());
 static_assert(check_three_way_comparable_with<int, double>());
 static_assert(check_three_way_comparable_with<int*, int*>());
 
 static_assert(check_three_way_comparable_with<int, int, std::strong_ordering>());
 static_assert(check_three_way_comparable_with<int, char, std::strong_ordering>());
-static_assert(check_three_way_comparable_with<int, wchar_t, std::strong_ordering>());
+static_assert(check_three_way_comparable_with<int, short, std::strong_ordering>());
 
 static_assert(check_three_way_comparable_with<int, int, std::weak_ordering>());
 static_assert(check_three_way_comparable_with<int, char, std::weak_ordering>());
-static_assert(check_three_way_comparable_with<int, wchar_t, std::weak_ordering>());
+static_assert(!check_three_way_comparable_with<int, unsigned int, std::weak_ordering>());
 
 static_assert(!check_three_way_comparable_with<int, bool>());
 static_assert(!check_three_way_comparable_with<int, int*>());
@@ -68,40 +68,27 @@ static_assert(!check_three_way_comparable_with<int, int S::*>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)()>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() const>());
-static_assert(
-    !check_three_way_comparable_with<int, int (S::*)() const noexcept>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() volatile>());
-static_assert(
-    !check_three_way_comparable_with<int, int (S::*)() volatile noexcept>());
-static_assert(
-    !check_three_way_comparable_with<int, int (S::*)() const volatile>());
-static_assert(!check_three_way_comparable_with<
-              int, int (S::*)() const volatile noexcept>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() volatile noexcept>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const volatile>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const volatile noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() &>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() & noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() const&>());
-static_assert(
-    !check_three_way_comparable_with<int, int (S::*)() const & noexcept>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const & noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() volatile&>());
-static_assert(
-    !check_three_way_comparable_with<int, int (S::*)() volatile & noexcept>());
-static_assert(
-    !check_three_way_comparable_with<int, int (S::*)() const volatile&>());
-static_assert(!check_three_way_comparable_with<int, int (S::*)() const volatile &
-                                                       noexcept>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() volatile & noexcept>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const volatile&>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const volatile & noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() &&>());
-static_assert(!check_three_way_comparable_with < int,
-              int (S::*)() && noexcept > ());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() && noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() const&&>());
-static_assert(!check_three_way_comparable_with < int,
-              int (S::*)() const&& noexcept > ());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const&& noexcept>());
 static_assert(!check_three_way_comparable_with<int, int (S::*)() volatile&&>());
-static_assert(!check_three_way_comparable_with < int,
-              int (S::*)() volatile&& noexcept > ());
-static_assert(
-    !check_three_way_comparable_with<int, int (S::*)() const volatile&&>());
-static_assert(!check_three_way_comparable_with < int,
-              int (S::*)() const volatile&& noexcept > ());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() volatile&& noexcept>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const volatile&&>());
+static_assert(!check_three_way_comparable_with<int, int (S::*)() const volatile&& noexcept>());
 static_assert(!check_three_way_comparable_with<int*, int[5]>());
 static_assert(!check_three_way_comparable_with<int[5], int[5]>());
 static_assert(!check_three_way_comparable_with<std::nullptr_t, int>());
@@ -118,7 +105,7 @@ static_assert(!check_three_way_comparable_with<void, int (*)()>());
 static_assert(!check_three_way_comparable_with<void, int (&)()>());
 static_assert(!check_three_way_comparable_with<void, int S::*>());
 static_assert(!check_three_way_comparable_with<void, int (S::*)()>());
-}
+} // namespace fundamentals
 
 namespace user_defined {
 struct S {
@@ -237,6 +224,4 @@ struct SpaceshipNonConstArgument {
 };
 
 static_assert(!check_three_way_comparable_with<SpaceshipNonConstArgument>());
-}
-
-int main(int, char**) { return 0; }
+} // namespace user_defined

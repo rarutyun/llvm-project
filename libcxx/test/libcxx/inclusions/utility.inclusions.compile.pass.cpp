@@ -22,9 +22,7 @@
  #   error "<utility> was expected to define _LIBCPP_UTILITY"
 #endif
 #if TEST_STD_VER > 17 && !defined(_LIBCPP_COMPARE)
-// FIXME (rarutyun): enable this test part when cyclic dependency for
-// <compare> header is resolved
-//  #   error "<utility> should include <compare> in C++20 and later"
+ #   error "<utility> should include <compare> in C++20 and later"
 #endif
 #if TEST_STD_VER > 03 && !defined(_LIBCPP_INITIALIZER_LIST)
  #   error "<utility> should include <initializer_list> in C++11 and later"
