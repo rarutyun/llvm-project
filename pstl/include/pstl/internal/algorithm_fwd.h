@@ -240,17 +240,15 @@ template <class _RandomAccessIterator1, class _RandomAccessIterator2, class _Bin
 bool __brick_equal(_RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2, _RandomAccessIterator2,
                    _BinaryPredicate, /* is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                _BinaryPredicate, _IsVector, /* is_parallel = */ std::false_type) noexcept;
+__pattern_equal(_Tag __tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                _BinaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                _RandomAccessIterator2, _BinaryPredicate, _IsVector, /* is_parallel = */ std::true_type);
+__pattern_equal(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                _RandomAccessIterator2, _BinaryPredicate);
 
 //------------------------------------------------------------------------
 // find_if
