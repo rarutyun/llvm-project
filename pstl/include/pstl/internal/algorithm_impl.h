@@ -2131,7 +2131,7 @@ __pattern_sort(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _Rand
     using __backend_tag = typename decltype(__tag)::__backend_tag;
 
     __internal::__except_handler([&]() {
-        __par_backend::__parallel_stable_sort(__backend_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp,
+        __par_backend::__parallel_stable_sort(__backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp,
                                               [](_RandomAccessIterator __first, _RandomAccessIterator __last,
                                                  _Compare __comp) { std::sort(__first, __last, __comp); });
     });
@@ -2156,7 +2156,7 @@ __pattern_stable_sort(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec
     using __backend_tag = typename decltype(__tag)::__backend_tag;
 
     __internal::__except_handler([&]() {
-        __par_backend::__parallel_stable_sort(__backend_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp,
+        __par_backend::__parallel_stable_sort(__backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp,
                                               [](_RandomAccessIterator __first, _RandomAccessIterator __last,
                                                  _Compare __comp) { std::stable_sort(__first, __last, __comp); });
     });
@@ -2187,7 +2187,7 @@ __pattern_partial_sort(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exe
 
     __internal::__except_handler([&]() {
         __par_backend::__parallel_stable_sort(
-            __backend_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp,
+            __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp,
             [__n](_RandomAccessIterator __begin, _RandomAccessIterator __end, _Compare __comp) {
                 if (__n < __end - __begin)
                     std::partial_sort(__begin, __begin + __n, __end, __comp);
@@ -2228,15 +2228,15 @@ __pattern_partial_sort_copy(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& 
         if (__n2 >= __n1)
         {
             __par_backend::__parallel_stable_sort(
-                __backend_tag, std::forward<_ExecutionPolicy>(__exec), __d_first, __d_first + __n1, __comp,
-                [__first, __d_first, __is_vector](_RandomAccessIterator2 __i, _RandomAccessIterator2 __j,
+                __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __d_first, __d_first + __n1, __comp,
+                [__first, __d_first](_RandomAccessIterator2 __i, _RandomAccessIterator2 __j,
                                                   _Compare __comp) {
                     _RandomAccessIterator1 __i1 = __first + (__i - __d_first);
                     _RandomAccessIterator1 __j1 = __first + (__j - __d_first);
 
                 // 1. Copy elements from input to output
 #if !defined(_PSTL_ICC_18_OMP_SIMD_BROKEN)
-                    __internal::__brick_copy(__i1, __j1, __i, __is_vector);
+                    __internal::__brick_copy(__i1, __j1, __i, _IsVector{});
 #else
                     std::copy(__i1, __j1, __i);
 #endif
@@ -2253,7 +2253,7 @@ __pattern_partial_sort_copy(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& 
             __par_backend::__buffer<_T1> __buf(__n1);
             _T1* __r = __buf.get(); 
 
-            __par_backend::__parallel_stable_sort(__backend_tag, std::forward<_ExecutionPolicy>(__exec), __r, __r + __n1, __comp,
+            __par_backend::__parallel_stable_sort(__backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __r, __r + __n1, __comp,
                                                   [__n2, __first, __r](_T1* __i, _T1* __j, _Compare __comp) {
                                                       _RandomAccessIterator1 __it = __first + (__i - __r);
 
@@ -2272,13 +2272,13 @@ __pattern_partial_sort_copy(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& 
                                                   __n2);
 
             // 3. Move elements from temporary __buffer to output
-            __par_backend::__parallel_for(std::forward<_ExecutionPolicy>(__exec), __r, __r + __n2,
-                                          [__r, __d_first, __is_vector](_T1* __i, _T1* __j) {
-                                              __brick_move_destroy()(__i, __j, __d_first + (__i - __r), __is_vector);
+            __par_backend::__parallel_for(__backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __r, __r + __n2,
+                                          [__r, __d_first](_T1* __i, _T1* __j) {
+                                              __brick_move_destroy()(__i, __j, __d_first + (__i - __r), _IsVector{});
                                           });
             __par_backend::__parallel_for(
-                std::forward<_ExecutionPolicy>(__exec), __r + __n2, __r + __n1,
-                [__is_vector](_T1* __i, _T1* __j) { __brick_destroy(__i, __j, __is_vector); });
+                __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __r + __n2, __r + __n1,
+                [](_T1* __i, _T1* __j) { __brick_destroy(__i, __j, _IsVector{}); });
 
             return __d_first + __n2;
         }
