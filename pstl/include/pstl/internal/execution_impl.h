@@ -120,10 +120,12 @@ struct __tbb_backend
 using __par_backend_tag =
 #ifdef _PSTL_PAR_BACKEND_TBB
     __tbb_backend;
-#elif _PSTL_PAR_BACKEND_SERIAL
+#else
+#ifdef _PSTL_PAR_BACKEND_SERIAL
     __serial_backend;
 #else
 #    error "A parallel backend must be specified";
+#endif
 #endif
 
 template <class _IsVector>

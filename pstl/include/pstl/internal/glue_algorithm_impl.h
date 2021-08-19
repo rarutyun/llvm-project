@@ -720,7 +720,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, bool>
 equal(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
       _BinaryPredicate __p)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
 
     return __pstl::__internal::__pattern_equal(
         __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __p);
@@ -738,7 +738,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, bool>
 equal(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
       _ForwardIterator2 __last2, _BinaryPredicate __p)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
 
     return __pstl::__internal::__pattern_equal(
         __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __p);
