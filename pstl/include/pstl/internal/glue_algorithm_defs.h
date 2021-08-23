@@ -15,7 +15,6 @@
 
 #include "execution_defs.h"
 #include "pstl_config.h"
-#include "utils.h"
 
 _PSTL_HIDE_FROM_ABI_PUSH
 
