@@ -240,15 +240,17 @@ template <class _RandomAccessIterator1, class _RandomAccessIterator2, class _Bin
 bool __brick_equal(_RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2, _RandomAccessIterator2,
                    _BinaryPredicate, /* is_vector = */ std::true_type) noexcept;
 
-template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
+template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
+          class _IsVector>
 bool
-__pattern_equal(_Tag __tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                _BinaryPredicate) noexcept;
+__pattern_equal(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                _BinaryPredicate, _IsVector, /* is_parallel = */ std::false_type) noexcept;
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
+template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate,
+          class _IsVector>
 bool
-__pattern_equal(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                _RandomAccessIterator2, _BinaryPredicate);
+__pattern_equal(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                _RandomAccessIterator2, _BinaryPredicate, _IsVector, /* is_parallel = */ std::true_type);
 
 //------------------------------------------------------------------------
 // find_if
@@ -286,19 +288,15 @@ _RandomAccessIterator1 __brick_find_end(_RandomAccessIterator1, _RandomAccessIte
                                         _RandomAccessIterator2, _BinaryPredicate,
                                         /*__is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 _ForwardIterator1
-__pattern_find_end(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                   _BinaryPredicate, _IsVector,
-                   /*is_parallel=*/std::false_type) noexcept;
+__pattern_find_end(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                   _BinaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 _RandomAccessIterator1
-__pattern_find_end(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                   _RandomAccessIterator2, _BinaryPredicate, _IsVector,
-                   /*is_parallel=*/std::true_type) noexcept;
+__pattern_find_end(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                   _RandomAccessIterator2, _BinaryPredicate) noexcept;
 
 //------------------------------------------------------------------------
 // find_first_of
@@ -314,17 +312,15 @@ _RandomAccessIterator1 __brick_find_first_of(_RandomAccessIterator1, _RandomAcce
                                              _RandomAccessIterator2, _BinaryPredicate,
                                              /*__is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 _ForwardIterator1
-__pattern_find_first_of(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                        _BinaryPredicate, _IsVector, /*is_parallel=*/std::false_type) noexcept;
+__pattern_find_first_of(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                        _BinaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 _RandomAccessIterator1
-__pattern_find_first_of(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                        _RandomAccessIterator2, _BinaryPredicate, _IsVector, /*is_parallel=*/std::true_type) noexcept;
+__pattern_find_first_of(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                        _RandomAccessIterator2, _BinaryPredicate) noexcept;
 
 //------------------------------------------------------------------------
 // search
@@ -340,19 +336,15 @@ _RandomAccessIterator1 __brick_search(_RandomAccessIterator1, _RandomAccessItera
                                       _RandomAccessIterator2, _BinaryPredicate,
                                       /*vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 _ForwardIterator1
-__pattern_search(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                 _BinaryPredicate, _IsVector,
-                 /*is_parallel=*/std::false_type) noexcept;
+__pattern_search(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                 _BinaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 _RandomAccessIterator1
-__pattern_search(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                 _RandomAccessIterator2, _BinaryPredicate, _IsVector,
-                 /*is_parallel=*/std::true_type) noexcept;
+__pattern_search(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                 _RandomAccessIterator2, _BinaryPredicate) noexcept;
 
 //------------------------------------------------------------------------
 // search_n
@@ -368,19 +360,14 @@ _RandomAccessIterator
 __brick_search_n(_RandomAccessIterator, _RandomAccessIterator, _Size, const _Tp&, _BinaryPredicate,
                  /*vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Size, class _Tp, class _BinaryPredicate,
-          class IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Size, class _Tp, class _BinaryPredicate>
 _ForwardIterator
-__pattern_search_n(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Size, const _Tp&, _BinaryPredicate,
-                   IsVector,
-                   /*is_parallel=*/std::false_type) noexcept;
+__pattern_search_n(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Size, const _Tp&, _BinaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Tp, class _BinaryPredicate,
-          class IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Tp, class _BinaryPredicate>
 _RandomAccessIterator
-__pattern_search_n(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Size, const _Tp&,
-                   _BinaryPredicate, IsVector,
-                   /*is_parallel=*/std::true_type) noexcept;
+__pattern_search_n(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Size, const _Tp&,
+                   _BinaryPredicate) noexcept;
 
 //------------------------------------------------------------------------
 // copy_n
@@ -762,67 +749,55 @@ __pattern_partition_copy(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAcces
 // sort
 //------------------------------------------------------------------------
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector,
+template <class _Tag, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare,
           class _IsMoveConstructible>
 void
-__pattern_sort(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare, _IsVector /*is_vector*/,
-               /*is_parallel=*/std::false_type, _IsMoveConstructible) noexcept;
+__pattern_sort(_Tag, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare, _IsMoveConstructible) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_sort(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare, _IsVector /*is_vector*/,
-               /*is_parallel=*/std::true_type,
+__pattern_sort(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare,
                /*is_move_constructible=*/std::true_type);
 
 //------------------------------------------------------------------------
 // stable_sort
 //------------------------------------------------------------------------
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_stable_sort(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare,
-                      _IsVector /*is_vector*/,
-                      /*is_parallel=*/std::false_type) noexcept;
+__pattern_stable_sort(_Tag, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_stable_sort(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare,
-                      _IsVector /*is_vector*/,
-                      /*is_parallel=*/std::true_type);
+__pattern_stable_sort(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare);
 
 //------------------------------------------------------------------------
 // partial_sort
 //------------------------------------------------------------------------
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_partial_sort(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
-                       _Compare, _IsVector,
-                       /*is_parallel=*/std::false_type) noexcept;
+__pattern_partial_sort(_Tag, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
+                       _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_partial_sort(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
-                       _Compare, _IsVector,
-                       /*is_parallel=*/std::true_type);
+__pattern_partial_sort(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
+                       _Compare);
 
 //------------------------------------------------------------------------
 // partial_sort_copy
 //------------------------------------------------------------------------
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare>
 _RandomAccessIterator2
-__pattern_partial_sort_copy(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                            _RandomAccessIterator2, _Compare, _IsVector,
-                            /*is_parallel=*/std::false_type) noexcept;
+__pattern_partial_sort_copy(_Tag, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                            _RandomAccessIterator2, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare>
 _RandomAccessIterator2
-__pattern_partial_sort_copy(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                            _RandomAccessIterator2, _Compare, _IsVector,
-                            /*is_parallel=*/std::true_type);
+__pattern_partial_sort_copy(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                            _RandomAccessIterator2, _Compare);
 
 //------------------------------------------------------------------------
 // adjacent_find
@@ -1155,15 +1130,13 @@ template <class _RandomAccessIterator, class _Compare>
 _RandomAccessIterator __brick_is_heap_until(_RandomAccessIterator, _RandomAccessIterator, _Compare,
                                             /* __is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 _RandomAccessIterator
-__pattern_is_heap_until(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare, _IsVector,
-                        /* is_parallel = */ std::false_type) noexcept;
+__pattern_is_heap_until(_Tag, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 _RandomAccessIterator
-__pattern_is_heap_until(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare, _IsVector,
-                        /* is_parallel = */ std::true_type) noexcept;
+__pattern_is_heap_until(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Compare) noexcept;
 
 //------------------------------------------------------------------------
 // min_element
@@ -1225,17 +1198,15 @@ std::pair<_RandomAccessIterator1, _RandomAccessIterator2>
                      _Predicate,
                      /* __is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Predicate, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Predicate>
 std::pair<_ForwardIterator1, _ForwardIterator2>
-__pattern_mismatch(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                   _Predicate, _IsVector,
-                   /* is_parallel = */ std::false_type) noexcept;
+__pattern_mismatch(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                   _Predicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Predicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Predicate>
 std::pair<_RandomAccessIterator1, _RandomAccessIterator2>
-__pattern_mismatch(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                   _RandomAccessIterator2, _Predicate, _IsVector, /* is_parallel = */ std::true_type) noexcept;
+__pattern_mismatch(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                   _RandomAccessIterator2, _Predicate) noexcept;
 
 //------------------------------------------------------------------------
 // lexicographical_compare
@@ -1251,17 +1222,15 @@ bool __brick_lexicographical_compare(_RandomAccessIterator1, _RandomAccessIterat
                                      _RandomAccessIterator2, _Compare,
                                      /* __is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Compare>
 bool
-__pattern_lexicographical_compare(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
-                                  _ForwardIterator2, _Compare, _IsVector, /* is_parallel = */ std::false_type) noexcept;
+__pattern_lexicographical_compare(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
+                                  _ForwardIterator2, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare>
 bool
-__pattern_lexicographical_compare(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
-                                  _RandomAccessIterator2, _RandomAccessIterator2, _Compare, _IsVector,
-                                  /* is_parallel = */ std::true_type) noexcept;
+__pattern_lexicographical_compare(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
+                                  _RandomAccessIterator2, _RandomAccessIterator2, _Compare) noexcept;
 
 } // namespace __internal
 } // namespace __pstl
