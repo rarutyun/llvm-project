@@ -220,17 +220,13 @@ template <class _RandomAccessIterator1, class _RandomAccessIterator2, class _Bin
 bool __brick_equal(_RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2, _BinaryPredicate,
                    /* is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _BinaryPredicate,
-                _IsVector, /* is_parallel = */ std::false_type) noexcept;
+__pattern_equal(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _BinaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                _BinaryPredicate, _IsVector, /* is_parallel = */ std::true_type);
+__pattern_equal(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2);
 
 template <class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 bool __brick_equal(_ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2, _BinaryPredicate,
@@ -240,17 +236,14 @@ template <class _RandomAccessIterator1, class _RandomAccessIterator2, class _Bin
 bool __brick_equal(_RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2, _RandomAccessIterator2,
                    _BinaryPredicate, /* is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                _BinaryPredicate, _IsVector, /* is_parallel = */ std::false_type) noexcept;
+__pattern_equal(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                _RandomAccessIterator2, _BinaryPredicate, _IsVector, /* is_parallel = */ std::true_type);
+__pattern_equal(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                _RandomAccessIterator2, _BinaryPredicate);
 
 //------------------------------------------------------------------------
 // find_if
@@ -570,15 +563,13 @@ template <class _RandomAccessIterator>
 void __brick_reverse(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
                      /*is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _BidirectionalIterator, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _BidirectionalIterator>
 void
-__pattern_reverse(_ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator, _IsVector,
-                  /*is_parallel=*/std::false_type) noexcept;
+__pattern_reverse(_Tag, _ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator>
 void
-__pattern_reverse(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _IsVector,
-                  /*is_parallel=*/std::true_type);
+__pattern_reverse(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator);
 
 //------------------------------------------------------------------------
 // reverse_copy
@@ -592,15 +583,13 @@ template <class _RandomAccessIterator, class _OutputIterator>
 _OutputIterator __brick_reverse_copy(_RandomAccessIterator, _RandomAccessIterator, _OutputIterator,
                                      /*is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _BidirectionalIterator, class _OutputIterator, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _BidirectionalIterator, class _OutputIterator>
 _OutputIterator
-__pattern_reverse_copy(_ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator, _OutputIterator, _IsVector,
-                       /*is_parallel=*/std::false_type) noexcept;
+__pattern_reverse_copy(_Tag, _ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator, _OutputIterator) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator>
 _OutputIterator
-__pattern_reverse_copy(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator, _IsVector,
-                       /*is_parallel=*/std::true_type);
+__pattern_reverse_copy(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator);
 
 //------------------------------------------------------------------------
 // rotate
