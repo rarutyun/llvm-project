@@ -37,15 +37,13 @@ bool
 __brick_any_of(const _RandomAccessIterator, const _RandomAccessIterator, _Pred,
                /*__is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Pred, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Pred>
 bool
-__pattern_any_of(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Pred, _IsVector,
-                 /*parallel=*/std::false_type) noexcept;
+__pattern_any_of(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Pred) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Pred, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Pred>
 bool
-__pattern_any_of(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Pred, _IsVector,
-                 /*parallel=*/std::true_type);
+__pattern_any_of(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Pred);
 
 //------------------------------------------------------------------------
 // walk1 (pseudo)
@@ -226,7 +224,7 @@ __pattern_equal(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, 
 
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2);
+__pattern_equal(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2, _BinaryPredicate);
 
 template <class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 bool __brick_equal(_ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2, _BinaryPredicate,
@@ -238,7 +236,7 @@ bool __brick_equal(_RandomAccessIterator1, _RandomAccessIterator1, _RandomAccess
 
 template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 bool
-__pattern_equal(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2) noexcept;
+__pattern_equal(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2, _BinaryPredicate) noexcept;
 
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _BinaryPredicate>
 bool
@@ -986,18 +984,15 @@ __pattern_inplace_merge(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccess
 // includes
 //------------------------------------------------------------------------
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Compare>
 bool
-__pattern_includes(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                   _Compare, _IsVector,
-                   /*is_parallel=*/std::false_type) noexcept;
+__pattern_includes(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                   _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Compare>
 bool
-__pattern_includes(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                   _RandomAccessIterator2, _Compare, _IsVector,
-                   /*is_parallel=*/std::true_type);
+__pattern_includes(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                   _RandomAccessIterator2, _Compare);
 
 //------------------------------------------------------------------------
 // set_union
