@@ -543,7 +543,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _ForwardItera
 reverse_copy(_ExecutionPolicy&& __exec, _BidirectionalIterator __first, _BidirectionalIterator __last,
              _ForwardIterator __d_first)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __d_first);
 
     return __pstl::__internal::__pattern_reverse_copy(
         __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __d_first);

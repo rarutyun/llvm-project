@@ -743,8 +743,7 @@ __brick_search(_RandomAccessIterator1 __first, _RandomAccessIterator1 __last, _R
     return __internal::__find_subrange(__first, __last, __last, __s_first, __s_last, __pred, true, std::true_type());
 }
 
-template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
 _ForwardIterator1
 __pattern_search(_Tag, _ExecutionPolicy&&, _ForwardIterator1 __first, _ForwardIterator1 __last, _ForwardIterator2 __s_first,
                  _ForwardIterator2 __s_last, _BinaryPredicate __pred) noexcept
