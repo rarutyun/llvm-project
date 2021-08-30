@@ -43,6 +43,7 @@ using namespace llvm::wasm;
 namespace lld {
 namespace wasm {
 static constexpr int stackAlignment = 16;
+static constexpr int heapAlignment = 16;
 
 namespace {
 
@@ -310,9 +311,12 @@ void Writer::layoutMemory() {
     placeStack();
 
   if (WasmSym::heapBase) {
-    // Set `__heap_base` to directly follow the end of the stack or global data.
-    // The fact that this comes last means that a malloc/brk implementation
-    // can grow the heap at runtime.
+    // Set `__heap_base` to follow the end of the stack or global data. The
+    // fact that this comes last means that a malloc/brk implementation can
+    // grow the heap at runtime.
+    // We'll align the heap base here because memory allocators might expect
+    // __heap_base to be aligned already.
+    memoryPtr = alignTo(memoryPtr, heapAlignment);
     log("mem: heap base   = " + Twine(memoryPtr));
     WasmSym::heapBase->setVA(memoryPtr);
   }
@@ -391,7 +395,7 @@ void Writer::addSections() {
   addSection(out.functionSec);
   addSection(out.tableSec);
   addSection(out.memorySec);
-  addSection(out.eventSec);
+  addSection(out.tagSec);
   addSection(out.globalSec);
   addSection(out.exportSec);
   addSection(out.startSec);
@@ -544,32 +548,39 @@ void Writer::populateTargetFeatures() {
 }
 
 static bool shouldImport(Symbol *sym) {
-  if (!sym->isUndefined())
-    return false;
-  if (sym->isWeak() && !config->relocatable)
+  // We don't generate imports for data symbols. They however can be imported
+  // as GOT entries.
+  if (isa<DataSymbol>(sym))
     return false;
   if (!sym->isLive())
     return false;
   if (!sym->isUsedInRegularObj)
     return false;
 
-  // We don't generate imports for data symbols. They however can be imported
-  // as GOT entries.
-  if (isa<DataSymbol>(sym))
+  // When a symbol is weakly defined in a shared library we need to allow
+  // it to be overridden by another module so need to both import
+  // and export the symbol.
+  if (config->shared && sym->isDefined() && sym->isWeak())
+    return true;
+  if (!sym->isUndefined())
     return false;
+  if (sym->isWeak() && !config->relocatable && !config->isPic)
+    return false;
+
+  // In PIC mode we only need to import functions when they are called directly.
+  // Indirect usage all goes via GOT imports.
+  if (config->isPic) {
+    if (auto *f = dyn_cast<UndefinedFunction>(sym))
+      if (!f->isCalledDirectly)
+        return false;
+  }
 
   if (config->isPic || config->relocatable || config->importUndefined)
     return true;
   if (config->allowUndefinedSymbols.count(sym->getName()) != 0)
     return true;
-  if (auto *g = dyn_cast<UndefinedGlobal>(sym))
-    return g->importName.hasValue();
-  if (auto *f = dyn_cast<UndefinedFunction>(sym))
-    return f->importName.hasValue();
-  if (auto *t = dyn_cast<UndefinedTable>(sym))
-    return t->importName.hasValue();
 
-  return false;
+  return sym->importName.hasValue();
 }
 
 void Writer::calculateImports() {
@@ -613,7 +624,7 @@ void Writer::calculateExports() {
       if (Optional<StringRef> exportName = f->function->getExportName()) {
         name = *exportName;
       }
-      export_ = {name, WASM_EXTERNAL_FUNCTION, f->getFunctionIndex()};
+      export_ = {name, WASM_EXTERNAL_FUNCTION, f->getExportedFunctionIndex()};
     } else if (auto *g = dyn_cast<DefinedGlobal>(sym)) {
       if (g->getGlobalType()->Mutable && !g->getFile() && !g->forceExport) {
         // Avoid exporting mutable globals are linker synthesized (e.g.
@@ -625,8 +636,8 @@ void Writer::calculateExports() {
         continue;
       }
       export_ = {name, WASM_EXTERNAL_GLOBAL, g->getGlobalIndex()};
-    } else if (auto *e = dyn_cast<DefinedEvent>(sym)) {
-      export_ = {name, WASM_EXTERNAL_EVENT, e->getEventIndex()};
+    } else if (auto *t = dyn_cast<DefinedTag>(sym)) {
+      export_ = {name, WASM_EXTERNAL_TAG, t->getTagIndex()};
     } else if (auto *d = dyn_cast<DefinedData>(sym)) {
       if (d->segment && d->segment->isTLS()) {
         // We can't currenly export TLS data symbols.
@@ -668,8 +679,8 @@ void Writer::calculateTypes() {
   // 1. Any signature used in the TYPE relocation
   // 2. The signatures of all imported functions
   // 3. The signatures of all defined functions
-  // 4. The signatures of all imported events
-  // 5. The signatures of all defined events
+  // 4. The signatures of all imported tags
+  // 5. The signatures of all defined tags
 
   for (ObjFile *file : symtab->objectFiles) {
     ArrayRef<WasmSignature> types = file->getWasmObj()->types();
@@ -681,15 +692,15 @@ void Writer::calculateTypes() {
   for (const Symbol *sym : out.importSec->importedSymbols) {
     if (auto *f = dyn_cast<FunctionSymbol>(sym))
       out.typeSec->registerType(*f->signature);
-    else if (auto *e = dyn_cast<EventSymbol>(sym))
-      out.typeSec->registerType(*e->signature);
+    else if (auto *t = dyn_cast<TagSymbol>(sym))
+      out.typeSec->registerType(*t->signature);
   }
 
   for (const InputFunction *f : out.functionSec->inputFunctions)
     out.typeSec->registerType(f->signature);
 
-  for (const InputEvent *e : out.eventSec->inputEvents)
-    out.typeSec->registerType(e->signature);
+  for (const InputTag *t : out.tagSec->inputTags)
+    out.typeSec->registerType(t->signature);
 }
 
 // In a command-style link, create a wrapper for each exported symbol
@@ -797,9 +808,9 @@ void Writer::assignIndexes() {
   }
 
   for (ObjFile *file : symtab->objectFiles) {
-    LLVM_DEBUG(dbgs() << "Events: " << file->getName() << "\n");
-    for (InputEvent *event : file->events)
-      out.eventSec->addEvent(event);
+    LLVM_DEBUG(dbgs() << "Tags: " << file->getName() << "\n");
+    for (InputTag *tag : file->tags)
+      out.tagSec->addTag(tag);
   }
 
   for (ObjFile *file : symtab->objectFiles) {
@@ -1057,7 +1068,7 @@ void Writer::createInitMemoryFunction() {
       writeU8(os, WASM_OPCODE_GLOBAL_GET, "GLOBAL_GET");
       writeUleb128(os, WasmSym::memoryBase->getGlobalIndex(), "memory_base");
       writePtrConst(os, flagAddress, is64, "flag address");
-      writeU8(os, WASM_OPCODE_I32_ADD, "add");
+      writeU8(os, is64 ? WASM_OPCODE_I64_ADD : WASM_OPCODE_I32_ADD, "add");
       writeU8(os, WASM_OPCODE_LOCAL_SET, "local.set");
       writeUleb128(os, 0, "local 0");
     } else {
@@ -1104,7 +1115,8 @@ void Writer::createInitMemoryFunction() {
           writeU8(os, WASM_OPCODE_GLOBAL_GET, "GLOBAL_GET");
           writeUleb128(os, WasmSym::memoryBase->getGlobalIndex(),
                        "memory_base");
-          writeU8(os, WASM_OPCODE_I32_ADD, "i32.add");
+          writeU8(os, is64 ? WASM_OPCODE_I64_ADD : WASM_OPCODE_I32_ADD,
+                  "i32.add");
         }
         // source segment offset
         writeI32Const(os, 0, "segment offset");
@@ -1361,7 +1373,7 @@ void Writer::createSyntheticSections() {
   out.functionSec = make<FunctionSection>();
   out.tableSec = make<TableSection>();
   out.memorySec = make<MemorySection>();
-  out.eventSec = make<EventSection>();
+  out.tagSec = make<TagSection>();
   out.globalSec = make<GlobalSection>();
   out.exportSec = make<ExportSection>();
   out.startSec = make<StartSection>();
@@ -1494,12 +1506,12 @@ void Writer::run() {
   if (errorHandler().verbose) {
     log("Defined Functions: " + Twine(out.functionSec->inputFunctions.size()));
     log("Defined Globals  : " + Twine(out.globalSec->numGlobals()));
-    log("Defined Events   : " + Twine(out.eventSec->inputEvents.size()));
+    log("Defined Tags     : " + Twine(out.tagSec->inputTags.size()));
     log("Defined Tables   : " + Twine(out.tableSec->inputTables.size()));
     log("Function Imports : " +
         Twine(out.importSec->getNumImportedFunctions()));
     log("Global Imports   : " + Twine(out.importSec->getNumImportedGlobals()));
-    log("Event Imports    : " + Twine(out.importSec->getNumImportedEvents()));
+    log("Tag Imports      : " + Twine(out.importSec->getNumImportedTags()));
     log("Table Imports    : " + Twine(out.importSec->getNumImportedTables()));
     for (ObjFile *file : symtab->objectFiles)
       file->dumpInfo();

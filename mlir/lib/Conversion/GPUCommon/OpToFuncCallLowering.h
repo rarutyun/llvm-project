@@ -8,7 +8,7 @@
 #ifndef MLIR_CONVERSION_GPUCOMMON_OPTOFUNCCALLLOWERING_H_
 #define MLIR_CONVERSION_GPUCOMMON_OPTOFUNCCALLLOWERING_H_
 
-#include "mlir/Conversion/StandardToLLVM/ConvertStandardToLLVM.h"
+#include "mlir/Conversion/LLVMCommon/Pattern.h"
 #include "mlir/Dialect/GPU/GPUDialect.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
@@ -106,7 +106,8 @@ private:
                                      Operation *op) const {
     using LLVM::LLVMFuncOp;
 
-    Operation *funcOp = SymbolTable::lookupNearestSymbolFrom(op, funcName);
+    auto funcAttr = StringAttr::get(op->getContext(), funcName);
+    Operation *funcOp = SymbolTable::lookupNearestSymbolFrom(op, funcAttr);
     if (funcOp)
       return cast<LLVMFuncOp>(*funcOp);
 

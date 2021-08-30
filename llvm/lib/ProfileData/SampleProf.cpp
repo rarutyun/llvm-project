@@ -198,6 +198,23 @@ raw_ostream &llvm::sampleprof::operator<<(raw_ostream &OS,
   return OS;
 }
 
+void sampleprof::sortFuncProfiles(
+    const StringMap<FunctionSamples> &ProfileMap,
+    std::vector<NameFunctionSamples> &SortedProfiles) {
+  for (const auto &I : ProfileMap) {
+    assert(I.getKey() == I.second.getNameWithContext() &&
+           "Inconsistent profile map");
+    SortedProfiles.push_back(
+        std::make_pair(I.second.getNameWithContext(), &I.second));
+  }
+  llvm::stable_sort(SortedProfiles, [](const NameFunctionSamples &A,
+                                       const NameFunctionSamples &B) {
+    if (A.second->getTotalSamples() == B.second->getTotalSamples())
+      return A.first > B.first;
+    return A.second->getTotalSamples() > B.second->getTotalSamples();
+  });
+}
+
 unsigned FunctionSamples::getOffset(const DILocation *DIL) {
   return (DIL->getLine() - DIL->getScope()->getSubprogram()->getLine()) &
       0xffff;
@@ -370,10 +387,8 @@ void SampleContextTrimmer::trimAndMergeColdContextProfiles(
 }
 
 void SampleContextTrimmer::canonicalizeContextProfiles() {
-  StringSet<> ProfilesToBeRemoved;
-  // Note that StringMap order is guaranteed to be top-down order,
-  // this makes sure we make room for promoted/merged context in the
-  // map, before we move profiles in the map.
+  std::vector<StringRef> ProfilesToBeRemoved;
+  StringMap<FunctionSamples> ProfilesToBeAdded;
   for (auto &I : ProfileMap) {
     FunctionSamples &FProfile = I.second;
     StringRef ContextStr = FProfile.getNameWithContext();
@@ -383,17 +398,27 @@ void SampleContextTrimmer::canonicalizeContextProfiles() {
     // Use the context string from FunctionSamples to update the keys of
     // ProfileMap. They can get out of sync after context profile promotion
     // through pre-inliner.
-    auto Ret = ProfileMap.try_emplace(ContextStr, FProfile);
-    assert(Ret.second && "Conext conflict during canonicalization");
-    FProfile = Ret.first->second;
-
-    // Track the context profile to remove
-    ProfilesToBeRemoved.erase(ContextStr);
-    ProfilesToBeRemoved.insert(I.first());
+    // Duplicate the function profile for later insertion to avoid a conflict
+    // caused by a context both to be add and to be removed. This could happen
+    // when a context is promoted to another context which is also promoted to
+    // the third context. For example, given an original context A @ B @ C that
+    // is promoted to B @ C and the original context B @ C which is promoted to
+    // just C, adding B @ C to the profile map while removing same context (but
+    // with different profiles) from the map can cause a conflict if they are
+    // not handled in a right order. This can be solved by just caching the
+    // profiles to be added.
+    auto Ret = ProfilesToBeAdded.try_emplace(ContextStr, FProfile);
+    (void)Ret;
+    assert(Ret.second && "Context conflict during canonicalization");
+    ProfilesToBeRemoved.push_back(I.first());
   }
 
   for (auto &I : ProfilesToBeRemoved) {
-    ProfileMap.erase(I.first());
+    ProfileMap.erase(I);
+  }
+
+  for (auto &I : ProfilesToBeAdded) {
+    ProfileMap.try_emplace(I.first(), I.second);
   }
 }
 

@@ -273,12 +273,16 @@ LogicalResult FloatAttr::verify(function_ref<InFlightDiagnostic()> emitError,
 //===----------------------------------------------------------------------===//
 
 FlatSymbolRefAttr SymbolRefAttr::get(MLIRContext *ctx, StringRef value) {
-  return get(ctx, value, llvm::None).cast<FlatSymbolRefAttr>();
+  return get(StringAttr::get(ctx, value));
 }
 
-StringRef SymbolRefAttr::getLeafReference() const {
+FlatSymbolRefAttr SymbolRefAttr::get(StringAttr value) {
+  return get(value, {}).cast<FlatSymbolRefAttr>();
+}
+
+StringAttr SymbolRefAttr::getLeafReference() const {
   ArrayRef<FlatSymbolRefAttr> nestedRefs = getNestedReferences();
-  return nestedRefs.empty() ? getRootReference() : nestedRefs.back().getValue();
+  return nestedRefs.empty() ? getRootReference() : nestedRefs.back().getAttr();
 }
 
 //===----------------------------------------------------------------------===//
@@ -360,7 +364,7 @@ LogicalResult OpaqueAttr::verify(function_ref<InFlightDiagnostic()> emitError,
            << " attribute created with unregistered dialect. If this is "
               "intended, please call allowUnregisteredDialects() on the "
               "MLIRContext, or use -allow-unregistered-dialect with "
-              "mlir-opt";
+              "the MLIR opt tool used";
   }
 
   return success();
@@ -1024,12 +1028,28 @@ DenseElementsAttr DenseElementsAttr::reshape(ShapedType newType) {
   if (curType == newType)
     return *this;
 
-  (void)curType;
   assert(newType.getElementType() == curType.getElementType() &&
          "expected the same element type");
   assert(newType.getNumElements() == curType.getNumElements() &&
          "expected the same number of elements");
   return DenseIntOrFPElementsAttr::getRaw(newType, getRawData(), isSplat());
+}
+
+/// Return a new DenseElementsAttr that has the same data as the current
+/// attribute, but has bitcast elements such that it is now 'newType'. The new
+/// type must have the same shape and element types of the same bitwidth as the
+/// current type.
+DenseElementsAttr DenseElementsAttr::bitcast(Type newElType) {
+  ShapedType curType = getType();
+  Type curElType = curType.getElementType();
+  if (curElType == newElType)
+    return *this;
+
+  assert(getDenseElementBitWidth(newElType) ==
+             getDenseElementBitWidth(curElType) &&
+         "expected element types with the same bitwidth");
+  return DenseIntOrFPElementsAttr::getRaw(curType.clone(newElType),
+                                          getRawData(), isSplat());
 }
 
 DenseElementsAttr
