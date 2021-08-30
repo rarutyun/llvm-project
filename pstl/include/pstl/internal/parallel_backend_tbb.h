@@ -1251,9 +1251,9 @@ operator()(__task* __self)
 template <class _ExecutionPolicy, typename _RandomAccessIterator1, typename _RandomAccessIterator2,
           typename _RandomAccessIterator3, typename _Compare, typename _LeafMerge>
 void
-__parallel_merge(_ExecutionPolicy&&, _RandomAccessIterator1 __xs, _RandomAccessIterator1 __xe,
-                 _RandomAccessIterator2 __ys, _RandomAccessIterator2 __ye, _RandomAccessIterator3 __zs, _Compare __comp,
-                 _LeafMerge __leaf_merge)
+__parallel_merge(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _RandomAccessIterator1 __xs,
+                 _RandomAccessIterator1 __xe, _RandomAccessIterator2 __ys, _RandomAccessIterator2 __ye,
+                 _RandomAccessIterator3 __zs, _Compare __comp, _LeafMerge __leaf_merge)
 {
     typedef typename std::iterator_traits<_RandomAccessIterator1>::difference_type _DifferenceType1;
     typedef typename std::iterator_traits<_RandomAccessIterator2>::difference_type _DifferenceType2;
