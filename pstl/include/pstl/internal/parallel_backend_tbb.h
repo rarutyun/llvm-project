@@ -734,7 +734,7 @@ class __merge_func
     bool _root;   //means a task is merging root task
     bool _x_orig; //"true" means X(or left ) subrange is in the original container; false - in the buffer
     bool _y_orig; //"true" means Y(or right) subrange is in the original container; false - in the buffer
-    bool _split; //"true" means a merge task is a split task for parallel merging, the execution logic differs
+    bool _split;  //"true" means a merge task is a split task for parallel merging, the execution logic differs
 
     bool
     is_partial() const
@@ -828,8 +828,8 @@ class __merge_func
                  _Cleanup, _LeafMerge __leaf_merge, _SizeType __nsort, _RandomAccessIterator1 __x_beg,
                  _RandomAccessIterator2 __z_beg, bool __x_orig, bool __y_orig, bool __root)
         : _M_xs(__xs), _M_xe(__xe), _M_ys(__ys), _M_ye(__ye), _M_zs(__zs), _M_x_beg(__x_beg), _M_z_beg(__z_beg),
-          _M_comp(__comp), _M_leaf_merge(__leaf_merge), _M_nsort(__nsort), _root(__root),
-          _x_orig(__x_orig), _y_orig(__y_orig), _split(false)
+          _M_comp(__comp), _M_leaf_merge(__leaf_merge), _M_nsort(__nsort), _root(__root), _x_orig(__x_orig),
+          _y_orig(__y_orig), _split(false)
     {
     }
 
@@ -1157,8 +1157,8 @@ __stable_sort_func<_RandomAccessIterator1, _RandomAccessIterator2, _Compare, _Le
 
 template <class _ExecutionPolicy, typename _RandomAccessIterator, typename _Compare, typename _LeafSort>
 void
-__parallel_stable_sort(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _RandomAccessIterator __xs, _RandomAccessIterator __xe, _Compare __comp,
-                       _LeafSort __leaf_sort, std::size_t __nsort = 0)
+__parallel_stable_sort(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _RandomAccessIterator __xs,
+                       _RandomAccessIterator __xe, _Compare __comp, _LeafSort __leaf_sort, std::size_t __nsort = 0)
 {
     tbb::this_task_arena::isolate([=, &__nsort]() {
         //sorting based on task tree and parallel merge

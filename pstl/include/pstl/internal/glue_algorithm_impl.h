@@ -34,8 +34,8 @@ any_of(_ExecutionPolicy&& __exec, _ForwardIterator __first, _ForwardIterator __l
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_any_of(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __pred);
+    return __pstl::__internal::__pattern_any_of(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last,
+                                                __pred);
 }
 
 // [alg.all_of]
@@ -113,8 +113,8 @@ find_end(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIterator1
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_find_end(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __s_first, __s_last, __pred);
+    return __pstl::__internal::__pattern_find_end(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                  __last, __s_first, __s_last, __pred);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
@@ -134,8 +134,8 @@ find_first_of(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIter
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_find_first_of(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __s_first, __s_last, __pred);
+    return __pstl::__internal::__pattern_find_first_of(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                       __last, __s_first, __s_last, __pred);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
@@ -209,8 +209,8 @@ search(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIterator1 _
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_search(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __s_first, __s_last, __pred);
+    return __pstl::__internal::__pattern_search(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last,
+                                                __s_first, __s_last, __pred);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
@@ -228,8 +228,8 @@ search_n(_ExecutionPolicy&& __exec, _ForwardIterator __first, _ForwardIterator _
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_search_n(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __count, __value, __pred);
+    return __pstl::__internal::__pattern_search_n(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                  __last, __count, __value, __pred);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator, class _Size, class _Tp>
@@ -534,8 +534,7 @@ reverse(_ExecutionPolicy&& __exec, _BidirectionalIterator __first, _Bidirectiona
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    __pstl::__internal::__pattern_reverse(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last);
+    __pstl::__internal::__pattern_reverse(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last);
 }
 
 template <class _ExecutionPolicy, class _BidirectionalIterator, class _ForwardIterator>
@@ -545,8 +544,8 @@ reverse_copy(_ExecutionPolicy&& __exec, _BidirectionalIterator __first, _Bidirec
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __d_first);
 
-    return __pstl::__internal::__pattern_reverse_copy(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __d_first);
+    return __pstl::__internal::__pattern_reverse_copy(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                      __last, __d_first);
 }
 
 // [alg.rotate]
@@ -630,9 +629,8 @@ sort(_ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAccessIter
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
     typedef typename iterator_traits<_RandomAccessIterator>::value_type _InputType;
-    return __pstl::__internal::__pattern_sort(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp,
-        typename std::is_move_constructible<_InputType>::type());
+    return __pstl::__internal::__pattern_sort(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last,
+                                              __comp, typename std::is_move_constructible<_InputType>::type());
 }
 
 template <class _ExecutionPolicy, class _RandomAccessIterator>
@@ -651,8 +649,8 @@ stable_sort(_ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAcc
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_stable_sort(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp);
+    return __pstl::__internal::__pattern_stable_sort(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                     __last, __comp);
 }
 
 template <class _ExecutionPolicy, class _RandomAccessIterator>
@@ -672,8 +670,8 @@ mismatch(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
 
-    return __pstl::__internal::__pattern_mismatch(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __pred);
+    return __pstl::__internal::__pattern_mismatch(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
+                                                  __last1, __first2, __last2, __pred);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _BinaryPredicate>
@@ -712,8 +710,8 @@ equal(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 _
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
 
-    return __pstl::__internal::__pattern_equal(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __p);
+    return __pstl::__internal::__pattern_equal(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
+                                               __last1, __first2, __p);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
@@ -730,8 +728,8 @@ equal(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 _
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
 
-    return __pstl::__internal::__pattern_equal(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __p);
+    return __pstl::__internal::__pattern_equal(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
+                                               __last1, __first2, __last2, __p);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
@@ -769,8 +767,8 @@ partial_sort(_ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAc
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    __pstl::__internal::__pattern_partial_sort(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __middle, __last, __comp);
+    __pstl::__internal::__pattern_partial_sort(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                               __middle, __last, __comp);
 }
 
 template <class _ExecutionPolicy, class _RandomAccessIterator>
@@ -791,8 +789,8 @@ partial_sort_copy(_ExecutionPolicy&& __exec, _ForwardIterator __first, _ForwardI
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_partial_sort_copy(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __d_first, __d_last, __comp);
+    return __pstl::__internal::__pattern_partial_sort_copy(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
+                                                           __first, __last, __d_first, __d_last, __comp);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator, class _RandomAccessIterator>
@@ -898,8 +896,8 @@ includes(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
 
-    return __pstl::__internal::__pattern_includes(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __comp);
+    return __pstl::__internal::__pattern_includes(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
+                                                  __last1, __first2, __last2, __comp);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
@@ -1018,8 +1016,8 @@ is_heap_until(_ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomA
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
 
-    return __pstl::__internal::__pattern_is_heap_until(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __comp);
+    return __pstl::__internal::__pattern_is_heap_until(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                       __last, __comp);
 }
 
 template <class _ExecutionPolicy, class _RandomAccessIterator>
@@ -1131,8 +1129,8 @@ lexicographical_compare(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
 
-    return __pstl::__internal::__pattern_lexicographical_compare(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __comp);
+    return __pstl::__internal::__pattern_lexicographical_compare(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
+                                                                 __first1, __last1, __first2, __last2, __comp);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
