@@ -285,12 +285,18 @@ int main() {
   MLIRContext context;
   /* ... */;
 
-  // Register the interface model with the type in the given context before
-  // using it. The dialect contaiing the type is expected to have been loaded
+  // Attach the interface model to the type in the given context before
+  // using it. The dialect containing the type is expected to have been loaded
   // at this point.
-  IntegerType::registerInterface<ExternalModelExample>(context);
+  IntegerType::attachInterface<ExternalModelExample>(context);
 }
 ```
+
+Note: It is strongly encouraged to only use this mechanism if you "own" the
+interface being externally applied. This prevents a situation where neither the
+owner of the dialect containing the object nor the owner of the interface are
+aware of an interface implementation, which can lead to duplicate or
+diverging implementations.
 
 #### Dialect Fallback for OpInterface
 

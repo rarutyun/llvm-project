@@ -1019,35 +1019,39 @@ static ParseResult parseAccessChainOp(OpAsmParser &parser,
   return success();
 }
 
-static void print(spirv::AccessChainOp op, OpAsmPrinter &printer) {
-  printer << spirv::AccessChainOp::getOperationName() << ' ' << op.base_ptr()
-          << '[' << op.indices() << "] : " << op.base_ptr().getType() << ", "
-          << op.indices().getTypes();
+template <typename Op>
+static void printAccessChain(Op op, ValueRange indices, OpAsmPrinter &printer) {
+  printer << Op::getOperationName() << ' ' << op.base_ptr() << '[' << indices
+          << "] : " << op.base_ptr().getType() << ", " << indices.getTypes();
 }
 
-static LogicalResult verify(spirv::AccessChainOp accessChainOp) {
-  SmallVector<Value, 4> indices(accessChainOp.indices().begin(),
-                                accessChainOp.indices().end());
+static void print(spirv::AccessChainOp op, OpAsmPrinter &printer) {
+  printAccessChain(op, op.indices(), printer);
+}
+
+template <typename Op>
+static LogicalResult verifyAccessChain(Op accessChainOp, ValueRange indices) {
   auto resultType = getElementPtrType(accessChainOp.base_ptr().getType(),
                                       indices, accessChainOp.getLoc());
-  if (!resultType) {
+  if (!resultType)
     return failure();
-  }
 
   auto providedResultType =
-      accessChainOp.getType().dyn_cast<spirv::PointerType>();
-  if (!providedResultType) {
+      accessChainOp.getType().template dyn_cast<spirv::PointerType>();
+  if (!providedResultType)
     return accessChainOp.emitOpError(
                "result type must be a pointer, but provided")
            << providedResultType;
-  }
 
-  if (resultType != providedResultType) {
+  if (resultType != providedResultType)
     return accessChainOp.emitOpError("invalid result type: expected ")
            << resultType << ", but provided " << providedResultType;
-  }
 
   return success();
+}
+
+static LogicalResult verify(spirv::AccessChainOp accessChainOp) {
+  return verifyAccessChain(accessChainOp, accessChainOp.indices());
 }
 
 //===----------------------------------------------------------------------===//
@@ -1062,7 +1066,7 @@ void spirv::AddressOfOp::build(OpBuilder &builder, OperationState &state,
 static LogicalResult verify(spirv::AddressOfOp addressOfOp) {
   auto varOp = dyn_cast_or_null<spirv::GlobalVariableOp>(
       SymbolTable::lookupNearestSymbolFrom(addressOfOp->getParentOp(),
-                                           addressOfOp.variable()));
+                                           addressOfOp.variableAttr()));
   if (!varOp) {
     return addressOfOp.emitOpError("expected spv.GlobalVariable symbol");
   }
@@ -1949,14 +1953,14 @@ ArrayRef<Type> spirv::FuncOp::getCallableResults() {
 //===----------------------------------------------------------------------===//
 
 static LogicalResult verify(spirv::FunctionCallOp functionCallOp) {
-  auto fnName = functionCallOp.callee();
+  auto fnName = functionCallOp.calleeAttr();
 
   auto funcOp =
       dyn_cast_or_null<spirv::FuncOp>(SymbolTable::lookupNearestSymbolFrom(
           functionCallOp->getParentOp(), fnName));
   if (!funcOp) {
     return functionCallOp.emitOpError("callee function '")
-           << fnName << "' not found in nearest symbol table";
+           << fnName.getValue() << "' not found in nearest symbol table";
   }
 
   auto functionType = funcOp.getType();
@@ -2111,7 +2115,7 @@ static LogicalResult verify(spirv::GlobalVariableOp varOp) {
   if (auto init =
           varOp->getAttrOfType<FlatSymbolRefAttr>(kInitializerAttrName)) {
     Operation *initOp = SymbolTable::lookupNearestSymbolFrom(
-        varOp->getParentOp(), init.getValue());
+        varOp->getParentOp(), init.getAttr());
     // TODO: Currently only variable initialization with specialization
     // constants and other variables is supported. They could be normal
     // constants in the module scope as well.
@@ -2540,6 +2544,7 @@ void spirv::ModuleOp::build(OpBuilder &builder, OperationState &state,
 void spirv::ModuleOp::build(OpBuilder &builder, OperationState &state,
                             spirv::AddressingModel addressingModel,
                             spirv::MemoryModel memoryModel,
+                            Optional<VerCapExtAttr> vceTriple,
                             Optional<StringRef> name) {
   state.addAttribute(
       "addressing_model",
@@ -2548,10 +2553,11 @@ void spirv::ModuleOp::build(OpBuilder &builder, OperationState &state,
                                          static_cast<int32_t>(memoryModel)));
   OpBuilder::InsertionGuard guard(builder);
   builder.createBlock(state.addRegion());
-  if (name) {
-    state.attributes.append(mlir::SymbolTable::getSymbolAttrName(),
-                            builder.getStringAttr(*name));
-  }
+  if (vceTriple)
+    state.addAttribute(getVCETripleAttrName(), *vceTriple);
+  if (name)
+    state.addAttribute(mlir::SymbolTable::getSymbolAttrName(),
+                       builder.getStringAttr(*name));
 }
 
 static ParseResult parseModuleOp(OpAsmParser &parser, OperationState &state) {
@@ -2685,7 +2691,7 @@ static LogicalResult verify(spirv::ModuleOp moduleOp) {
 
 static LogicalResult verify(spirv::ReferenceOfOp referenceOfOp) {
   auto *specConstSym = SymbolTable::lookupNearestSymbolFrom(
-      referenceOfOp->getParentOp(), referenceOfOp.spec_const());
+      referenceOfOp->getParentOp(), referenceOfOp.spec_constAttr());
   Type constType;
 
   auto specConstOp = dyn_cast_or_null<spirv::SpecConstantOp>(specConstSym);
@@ -3510,17 +3516,17 @@ static LogicalResult verify(spirv::SpecConstantCompositeOp constOp) {
 
   if (cType.isa<spirv::CooperativeMatrixNVType>())
     return constOp.emitError("unsupported composite type  ") << cType;
-  else if (constituents.size() != cType.getNumElements())
+  if (constituents.size() != cType.getNumElements())
     return constOp.emitError("has incorrect number of operands: expected ")
            << cType.getNumElements() << ", but provided "
            << constituents.size();
 
   for (auto index : llvm::seq<uint32_t>(0, constituents.size())) {
-    auto constituent = constituents[index].dyn_cast<FlatSymbolRefAttr>();
+    auto constituent = constituents[index].cast<FlatSymbolRefAttr>();
 
     auto constituentSpecConstOp =
         dyn_cast<spirv::SpecConstantOp>(SymbolTable::lookupNearestSymbolFrom(
-            constOp->getParentOp(), constituent.getValue()));
+            constOp->getParentOp(), constituent.getAttr()));
 
     if (constituentSpecConstOp.default_value().getType() !=
         cType.getElementType(index))
@@ -3766,6 +3772,109 @@ static LogicalResult verify(spirv::ImageQuerySizeOp imageQuerySizeOp) {
            << resultComponentNumber << " component(s)";
 
   return success();
+}
+
+static ParseResult parsePtrAccessChainOpImpl(StringRef opName,
+                                             OpAsmParser &parser,
+                                             OperationState &state) {
+  OpAsmParser::OperandType ptrInfo;
+  SmallVector<OpAsmParser::OperandType, 4> indicesInfo;
+  Type type;
+  auto loc = parser.getCurrentLocation();
+  SmallVector<Type, 4> indicesTypes;
+
+  if (parser.parseOperand(ptrInfo) ||
+      parser.parseOperandList(indicesInfo, OpAsmParser::Delimiter::Square) ||
+      parser.parseColonType(type) ||
+      parser.resolveOperand(ptrInfo, type, state.operands))
+    return failure();
+
+  // Check that the provided indices list is not empty before parsing their
+  // type list.
+  if (indicesInfo.empty())
+    return emitError(state.location) << opName << " expected element";
+
+  if (parser.parseComma() || parser.parseTypeList(indicesTypes))
+    return failure();
+
+  // Check that the indices types list is not empty and that it has a one-to-one
+  // mapping to the provided indices.
+  if (indicesTypes.size() != indicesInfo.size())
+    return emitError(state.location)
+           << opName
+           << " indices types' count must be equal to indices info count";
+
+  if (parser.resolveOperands(indicesInfo, indicesTypes, loc, state.operands))
+    return failure();
+
+  auto resultType = getElementPtrType(
+      type, llvm::makeArrayRef(state.operands).drop_front(2), state.location);
+  if (!resultType)
+    return failure();
+
+  state.addTypes(resultType);
+  return success();
+}
+
+template <typename Op>
+static auto concatElemAndIndices(Op op) {
+  SmallVector<Value> ret(op.indices().size() + 1);
+  ret[0] = op.element();
+  llvm::copy(op.indices(), ret.begin() + 1);
+  return ret;
+}
+
+//===----------------------------------------------------------------------===//
+// spv.InBoundsPtrAccessChainOp
+//===----------------------------------------------------------------------===//
+
+void spirv::InBoundsPtrAccessChainOp::build(OpBuilder &builder,
+                                            OperationState &state,
+                                            Value basePtr, Value element,
+                                            ValueRange indices) {
+  auto type = getElementPtrType(basePtr.getType(), indices, state.location);
+  assert(type && "Unable to deduce return type based on basePtr and indices");
+  build(builder, state, type, basePtr, element, indices);
+}
+
+static ParseResult parseInBoundsPtrAccessChainOp(OpAsmParser &parser,
+                                                 OperationState &state) {
+  return parsePtrAccessChainOpImpl(
+      spirv::InBoundsPtrAccessChainOp::getOperationName(), parser, state);
+}
+
+static void print(spirv::InBoundsPtrAccessChainOp op, OpAsmPrinter &printer) {
+  printAccessChain(op, concatElemAndIndices(op), printer);
+}
+
+static LogicalResult verify(spirv::InBoundsPtrAccessChainOp accessChainOp) {
+  return verifyAccessChain(accessChainOp, accessChainOp.indices());
+}
+
+//===----------------------------------------------------------------------===//
+// spv.PtrAccessChainOp
+//===----------------------------------------------------------------------===//
+
+void spirv::PtrAccessChainOp::build(OpBuilder &builder, OperationState &state,
+                                    Value basePtr, Value element,
+                                    ValueRange indices) {
+  auto type = getElementPtrType(basePtr.getType(), indices, state.location);
+  assert(type && "Unable to deduce return type based on basePtr and indices");
+  build(builder, state, type, basePtr, element, indices);
+}
+
+static ParseResult parsePtrAccessChainOp(OpAsmParser &parser,
+                                         OperationState &state) {
+  return parsePtrAccessChainOpImpl(spirv::PtrAccessChainOp::getOperationName(),
+                                   parser, state);
+}
+
+static void print(spirv::PtrAccessChainOp op, OpAsmPrinter &printer) {
+  printAccessChain(op, concatElemAndIndices(op), printer);
+}
+
+static LogicalResult verify(spirv::PtrAccessChainOp accessChainOp) {
+  return verifyAccessChain(accessChainOp, accessChainOp.indices());
 }
 
 namespace mlir {

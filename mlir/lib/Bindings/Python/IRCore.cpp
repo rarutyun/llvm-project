@@ -643,11 +643,8 @@ void PyThreadContextEntry::popLocation(PyLocation &location) {
 
 MlirDialect PyDialects::getDialectForKey(const std::string &key,
                                          bool attrError) {
-  // If the "std" dialect was asked for, substitute the empty namespace :(
-  static const std::string emptyKey;
-  const std::string *canonKey = key == "std" ? &emptyKey : &key;
-  MlirDialect dialect = mlirContextGetOrLoadDialect(
-      getContext()->get(), {canonKey->data(), canonKey->size()});
+  MlirDialect dialect = mlirContextGetOrLoadDialect(getContext()->get(),
+                                                    {key.data(), key.size()});
   if (mlirDialectIsNull(dialect)) {
     throw SetPyError(attrError ? PyExc_AttributeError : PyExc_IndexError,
                      Twine("Dialect '") + key + "' not found");
@@ -871,22 +868,23 @@ py::object PyOperationBase::getAsm(bool binary,
   return fileObject.attr("getvalue")();
 }
 
-PyOperationRef PyOperation::getParentOperation() {
+llvm::Optional<PyOperationRef> PyOperation::getParentOperation() {
   checkValid();
   if (!isAttached())
     throw SetPyError(PyExc_ValueError, "Detached operations have no parent");
   MlirOperation operation = mlirOperationGetParentOperation(get());
   if (mlirOperationIsNull(operation))
-    throw SetPyError(PyExc_ValueError, "Operation has no parent.");
+    return {};
   return PyOperation::forOperation(getContext(), operation);
 }
 
 PyBlock PyOperation::getBlock() {
   checkValid();
-  PyOperationRef parentOperation = getParentOperation();
+  llvm::Optional<PyOperationRef> parentOperation = getParentOperation();
   MlirBlock block = mlirOperationGetBlock(get());
   assert(!mlirBlockIsNull(block) && "Attached operation has null parent");
-  return PyBlock{std::move(parentOperation), block};
+  assert(parentOperation && "Operation has no parent");
+  return PyBlock{std::move(*parentOperation), block};
 }
 
 py::object PyOperation::getCapsule() {
@@ -1652,7 +1650,17 @@ public:
   }
 
   PyValue getElement(intptr_t pos) {
-    return PyValue(operation, mlirOperationGetOperand(operation->get(), pos));
+    MlirValue operand = mlirOperationGetOperand(operation->get(), pos);
+    MlirOperation owner;
+    if (mlirValueIsAOpResult(operand))
+      owner = mlirOpResultGetOwner(operand);
+    else if (mlirValueIsABlockArgument(operand))
+      owner = mlirBlockGetParentOperation(mlirBlockArgumentGetOwner(operand));
+    else
+      assert(false && "Value must be an block arg or op result.");
+    PyOperationRef pyOwner =
+        PyOperation::forOperation(operation->getContext(), owner);
+    return PyValue(pyOwner, operand);
   }
 
   PyOpOperandList slice(intptr_t startIndex, intptr_t length, intptr_t step) {
@@ -2114,8 +2122,11 @@ void mlir::python::populateIRCore(py::module &m) {
                   py::arg("loc") = py::none(), py::arg("ip") = py::none(),
                   kOperationCreateDocstring)
       .def_property_readonly("parent",
-                             [](PyOperation &self) {
-                               return self.getParentOperation().getObject();
+                             [](PyOperation &self) -> py::object {
+                               auto parent = self.getParentOperation();
+                               if (parent)
+                                 return parent->getObject();
+                               return py::none();
                              })
       .def("erase", &PyOperation::erase)
       .def_property_readonly(MLIR_PYTHON_CAPI_PTR_ATTR,
@@ -2189,6 +2200,12 @@ void mlir::python::populateIRCore(py::module &m) {
   // Mapping of PyBlock.
   //----------------------------------------------------------------------------
   py::class_<PyBlock>(m, "Block")
+      .def_property_readonly(
+          "owner",
+          [](PyBlock &self) {
+            return self.getParentOperation()->createOpView();
+          },
+          "Returns the owning operation of this block.")
       .def_property_readonly(
           "arguments",
           [](PyBlock &self) {
@@ -2429,6 +2446,15 @@ void mlir::python::populateIRCore(py::module &m) {
       .def(
           "dump", [](PyValue &self) { mlirValueDump(self.get()); },
           kDumpDocstring)
+      .def_property_readonly(
+          "owner",
+          [](PyValue &self) {
+            assert(mlirOperationEqual(self.getParentOperation()->get(),
+                                      mlirOpResultGetOwner(self.get())) &&
+                   "expected the owner of the value in Python to match that in "
+                   "the IR");
+            return self.getParentOperation().getObject();
+          })
       .def("__eq__",
            [](PyValue &self, PyValue &other) {
              return self.get().ptr == other.get().ptr;

@@ -433,8 +433,10 @@ template <class Key, class T, class Hash, class Pred, class Alloc>
 
 #include <__config>
 #include <__debug>
+#include <__functional/is_transparent.h>
 #include <__hash_table>
 #include <__node_handle>
+#include <__utility/forward.h>
 #include <compare>
 #include <functional>
 #include <iterator> // __libcpp_erase_if_container
@@ -1462,7 +1464,7 @@ private:
 #endif
 };
 
-#ifndef _LIBCPP_HAS_NO_DEDUCTION_GUIDES
+#if _LIBCPP_STD_VER >= 17
 template<class _InputIterator,
          class _Hash = hash<__iter_key_type<_InputIterator>>,
          class _Pred = equal_to<__iter_key_type<_InputIterator>>,
@@ -2261,7 +2263,7 @@ public:
 
 };
 
-#ifndef _LIBCPP_HAS_NO_DEDUCTION_GUIDES
+#if _LIBCPP_STD_VER >= 17
 template<class _InputIterator,
          class _Hash = hash<__iter_key_type<_InputIterator>>,
          class _Pred = equal_to<__iter_key_type<_InputIterator>>,

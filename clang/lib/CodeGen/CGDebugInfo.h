@@ -292,11 +292,15 @@ class CGDebugInfo {
   CollectCXXTemplateParams(const ClassTemplateSpecializationDecl *TS,
                            llvm::DIFile *F);
 
+  /// A helper function to collect debug info for btf_tag annotations.
+  llvm::DINodeArray CollectBTFTagAnnotations(const Decl *D);
+
   llvm::DIType *createFieldType(StringRef name, QualType type,
                                 SourceLocation loc, AccessSpecifier AS,
                                 uint64_t offsetInBits, uint32_t AlignInBits,
                                 llvm::DIFile *tunit, llvm::DIScope *scope,
-                                const RecordDecl *RD = nullptr);
+                                const RecordDecl *RD = nullptr,
+                                llvm::DINodeArray Annotations = nullptr);
 
   llvm::DIType *createFieldType(StringRef name, QualType type,
                                 SourceLocation loc, AccessSpecifier AS,
@@ -570,6 +574,8 @@ private:
     /// The type as it appears in the source code.
     llvm::DIType *WrappedType;
   };
+
+  std::string GetName(const Decl*, bool Qualified = false) const;
 
   /// Build up structure info for the byref.  See \a BuildByRefType.
   BlockByRefType EmitTypeForVarWithBlocksAttr(const VarDecl *VD,
