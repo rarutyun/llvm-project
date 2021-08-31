@@ -111,7 +111,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _ForwardItera
 find_end(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIterator1 __last, _ForwardIterator2 __s_first,
          _ForwardIterator2 __s_last, _BinaryPredicate __pred)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __s_first);
 
     return __pstl::__internal::__pattern_find_end(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
                                                   __last, __s_first, __s_last, __pred);
@@ -132,7 +132,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _ForwardItera
 find_first_of(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIterator1 __last,
               _ForwardIterator2 __s_first, _ForwardIterator2 __s_last, _BinaryPredicate __pred)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __s_first);
 
     return __pstl::__internal::__pattern_find_first_of(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
                                                        __last, __s_first, __s_last, __pred);
@@ -207,7 +207,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _ForwardItera
 search(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIterator1 __last, _ForwardIterator2 __s_first,
        _ForwardIterator2 __s_last, _BinaryPredicate __pred)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __s_first);
 
     return __pstl::__internal::__pattern_search(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last,
                                                 __s_first, __s_last, __pred);
@@ -668,7 +668,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, std::pair<_Fo
 mismatch(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
          _ForwardIterator2 __last2, _BinaryPredicate __pred)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
 
     return __pstl::__internal::__pattern_mismatch(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
                                                   __last1, __first2, __last2, __pred);
@@ -708,7 +708,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, bool>
 equal(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
       _BinaryPredicate __p)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
 
     return __pstl::__internal::__pattern_equal(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
                                                __last1, __first2, __p);
@@ -726,7 +726,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, bool>
 equal(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
       _ForwardIterator2 __last2, _BinaryPredicate __p)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
 
     return __pstl::__internal::__pattern_equal(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
                                                __last1, __first2, __last2, __p);
@@ -850,7 +850,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _ForwardItera
 merge(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
       _ForwardIterator2 __last2, _ForwardIterator __d_first, _Compare __comp)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
 
     return __pstl::__internal::__pattern_merge(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
                                                __last1, __first2, __last2, __d_first, __comp);
@@ -892,7 +892,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, bool>
 includes(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
          _ForwardIterator2 __last2, _Compare __comp)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
 
     return __pstl::__internal::__pattern_includes(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
                                                   __last1, __first2, __last2, __comp);
@@ -1125,7 +1125,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, bool>
 lexicographical_compare(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1,
                         _ForwardIterator2 __first2, _ForwardIterator2 __last2, _Compare __comp)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
 
     return __pstl::__internal::__pattern_lexicographical_compare(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
                                                                  __first1, __last1, __first2, __last2, __comp);
