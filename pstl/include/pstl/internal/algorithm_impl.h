@@ -2921,12 +2921,21 @@ __parallel_set_op(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _Forwar
 }
 
 //a shared parallel pattern for '__pattern_set_union' and '__pattern_set_symmetric_difference'
+<<<<<<< HEAD
 template <class _IsVector, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2,
           class _OutputIterator, class _Compare, class _SetUnionOp>
 _OutputIterator
 __parallel_set_union_op(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _ForwardIterator1 __first1,
                         _ForwardIterator1 __last1, _ForwardIterator2 __first2, _ForwardIterator2 __last2,
                         _OutputIterator __result, _Compare __comp, _SetUnionOp __set_union_op)
+=======
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
+          class _Compare, class _SetUnionOp>
+_OutputIterator
+__parallel_set_union_op(_Tag __tag, _ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1,
+                        _ForwardIterator2 __first2, _ForwardIterator2 __last2, _OutputIterator __result,
+                        _Compare __comp, _SetUnionOp __set_union_op)
+>>>>>>> Applied tag dispatching to __parallel_strict_scan
 {
     typedef typename std::iterator_traits<_ForwardIterator1>::difference_type _DifferenceType;
 
@@ -2934,10 +2943,17 @@ __parallel_set_union_op(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __ex
     const auto __n2 = __last2 - __first2;
 
     auto copy_range1 = [](_ForwardIterator1 __begin, _ForwardIterator1 __end, _OutputIterator __res) {
+<<<<<<< HEAD
         return __internal::__brick_copy(__begin, __end, __res, _IsVector{});
     };
     auto copy_range2 = [](_ForwardIterator2 __begin, _ForwardIterator2 __end, _OutputIterator __res) {
         return __internal::__brick_copy(__begin, __end, __res, _IsVector{});
+=======
+        return __internal::__brick_copy(__begin, __end, __res, typename _Tag::__is_vector{});
+    };
+    auto copy_range2 = [](_ForwardIterator2 __begin, _ForwardIterator2 __end, _OutputIterator __res) {
+        return __internal::__brick_copy(__begin, __end, __res, typename _Tag::__is_vector{});
+>>>>>>> Applied tag dispatching to __parallel_strict_scan
     };
 
     // {1} {}: parallel copying just first sequence
@@ -3000,11 +3016,10 @@ __parallel_set_union_op(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __ex
                 __internal::__pattern_walk2_brick(__tag, std::forward<_ExecutionPolicy>(__exec), __first1,
                                                   __left_bound_seq_1, __res_or, copy_range1);
             },
-            [=, &__result] {
+            [=, &__result, __tag] {
                 __result = __internal::__parallel_set_op(
-                    std::forward<_ExecutionPolicy>(__exec), __left_bound_seq_1, __last1, __first2, __last2, __result,
-                    __comp, [](_DifferenceType __n, _DifferenceType __m) { return __n + __m; }, __set_union_op,
-                    _IsVector{});
+                    __tag, std::forward<_ExecutionPolicy>(__exec), __left_bound_seq_1, __last1, __first2, __last2, __result,
+                    __comp, [](_DifferenceType __n, _DifferenceType __m) { return __n + __m; }, __set_union_op);
             });
         return __result;
     }
@@ -3022,11 +3037,10 @@ __parallel_set_union_op(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __ex
                 __internal::__pattern_walk2_brick(__tag, std::forward<_ExecutionPolicy>(__exec), __first2,
                                                   __left_bound_seq_2, __res_or, copy_range2);
             },
-            [=, &__result] {
+            [=, &__result, __tag] {
                 __result = __internal::__parallel_set_op(
-                    std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __left_bound_seq_2, __last2, __result,
-                    __comp, [](_DifferenceType __n, _DifferenceType __m) { return __n + __m; }, __set_union_op,
-                    _IsVector{});
+                    __tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __left_bound_seq_2, __last2, __result,
+                    __comp, [](_DifferenceType __n, _DifferenceType __m) { return __n + __m; }, __set_union_op);
             });
         return __result;
     }
