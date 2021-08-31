@@ -2648,29 +2648,32 @@ __brick_merge(_RandomAccessIterator1 __first1, _RandomAccessIterator1 __last1, _
     return std::merge(__first1, __last1, __first2, __last2, __d_first, __comp);
 }
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
-          class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
+          class _Compare>
 _OutputIterator
-__pattern_merge(_ExecutionPolicy&&, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
-                _ForwardIterator2 __last2, _OutputIterator __d_first, _Compare __comp, _IsVector __is_vector,
-                /* is_parallel = */ std::false_type) noexcept
+__pattern_merge(_Tag, _ExecutionPolicy&&, _ForwardIterator1 __first1, _ForwardIterator1 __last1,
+                _ForwardIterator2 __first2, _ForwardIterator2 __last2, _OutputIterator __d_first,
+                _Compare __comp) noexcept
 {
-    return __internal::__brick_merge(__first1, __last1, __first2, __last2, __d_first, __comp, __is_vector);
+    return __internal::__brick_merge(__first1, __last1, __first2, __last2, __d_first, __comp,
+                                     typename _Tag::__is_vector{});
 }
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
-          class _RandomAccessIterator3, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _RandomAccessIterator3, class _Compare>
 _RandomAccessIterator3
-__pattern_merge(_ExecutionPolicy&& __exec, _RandomAccessIterator1 __first1, _RandomAccessIterator1 __last1,
-                _RandomAccessIterator2 __first2, _RandomAccessIterator2 __last2, _RandomAccessIterator3 __d_first,
-                _Compare __comp, _IsVector __is_vector, /* is_parallel = */ std::true_type)
+__pattern_merge(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator1 __first1,
+                _RandomAccessIterator1 __last1, _RandomAccessIterator2 __first2, _RandomAccessIterator2 __last2,
+                _RandomAccessIterator3 __d_first, _Compare __comp)
 {
+    using __backend_tag = typename decltype(__tag)::__backend_tag;
+
     __par_backend::__parallel_merge(
-        std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __d_first, __comp,
-        [__is_vector](_RandomAccessIterator1 __f1, _RandomAccessIterator1 __l1, _RandomAccessIterator2 __f2,
-                      _RandomAccessIterator2 __l2, _RandomAccessIterator3 __f3, _Compare __comp) {
-            return __internal::__brick_merge(__f1, __l1, __f2, __l2, __f3, __comp, __is_vector);
-        });
+        __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __d_first,
+        __comp,
+        [](_RandomAccessIterator1 __f1, _RandomAccessIterator1 __l1, _RandomAccessIterator2 __f2,
+           _RandomAccessIterator2 __l2, _RandomAccessIterator3 __f3,
+           _Compare __comp) { return __internal::__brick_merge(__f1, __l1, __f2, __l2, __f3, __comp, _IsVector{}); });
     return __d_first + (__last1 - __first1) + (__last2 - __first2);
 }
 
@@ -2694,21 +2697,21 @@ __brick_inplace_merge(_RandomAccessIterator __first, _RandomAccessIterator __mid
     std::inplace_merge(__first, __middle, __last, __comp);
 }
 
-template <class _ExecutionPolicy, class _BidirectionalIterator, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _BidirectionalIterator, class _Compare>
 void
-__pattern_inplace_merge(_ExecutionPolicy&&, _BidirectionalIterator __first, _BidirectionalIterator __middle,
-                        _BidirectionalIterator __last, _Compare __comp, _IsVector __is_vector,
-                        /* is_parallel = */ std::false_type) noexcept
+__pattern_inplace_merge(_Tag, _ExecutionPolicy&&, _BidirectionalIterator __first, _BidirectionalIterator __middle,
+                        _BidirectionalIterator __last, _Compare __comp) noexcept
 {
-    __internal::__brick_inplace_merge(__first, __middle, __last, __comp, __is_vector);
+    __internal::__brick_inplace_merge(__first, __middle, __last, __comp, typename _Tag::__is_vector{});
 }
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_inplace_merge(_ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAccessIterator __middle,
-                        _RandomAccessIterator __last, _Compare __comp, _IsVector __is_vector,
-                        /*is_parallel=*/std::true_type)
+__pattern_inplace_merge(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first,
+                        _RandomAccessIterator __middle, _RandomAccessIterator __last, _Compare __comp)
 {
+    using __backend_tag = typename decltype(__tag)::__backend_tag;
+
     if (__first == __last || __first == __middle || __middle == __last)
     {
         return;
@@ -2728,7 +2731,7 @@ __pattern_inplace_merge(_ExecutionPolicy&& __exec, _RandomAccessIterator __first
         };
 
         __par_backend::__parallel_merge(
-            std::forward<_ExecutionPolicy>(__exec), __first, __middle, __middle, __last, __r, __comp,
+            __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __middle, __middle, __last, __r, __comp,
             [__n, __move_values, __move_sequences](_RandomAccessIterator __f1, _RandomAccessIterator __l1,
                                                    _RandomAccessIterator __f2, _RandomAccessIterator __l2, _Tp* __f3,
                                                    _Compare __comp) {
@@ -2736,9 +2739,9 @@ __pattern_inplace_merge(_ExecutionPolicy&& __exec, _RandomAccessIterator __first
                                                     __move_sequences, __move_sequences);
                 return __f3 + (__l1 - __f1) + (__l2 - __f2);
             });
-        __par_backend::__parallel_for(std::forward<_ExecutionPolicy>(__exec), __r, __r + __n,
-                                      [__r, __first, __is_vector](_Tp* __i, _Tp* __j) {
-                                          __brick_move_destroy()(__i, __j, __first + (__i - __r), __is_vector);
+        __par_backend::__parallel_for(__backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __r, __r + __n,
+                                      [__r, __first](_Tp* __i, _Tp* __j) {
+                                          __brick_move_destroy()(__i, __j, __first + (__i - __r), _IsVector{});
                                       });
     });
 }
