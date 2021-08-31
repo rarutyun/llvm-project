@@ -118,9 +118,9 @@ struct __tbb_backend
 };
 
 using __par_backend_tag =
-#ifdef _PSTL_PAR_BACKEND_TBB
+#if defined(_PSTL_PAR_BACKEND_TBB)
     __tbb_backend;
-#elif _PSTL_PAR_BACKEND_SERIAL
+#elif defined(_PSTL_PAR_BACKEND_SERIAL)
     __serial_backend;
 #else
 #    error "A parallel backend must be specified";
@@ -158,28 +158,28 @@ using __tag_type =
 
 template <class... _IteratorTypes>
 __serial_tag</*_IsVector = */ std::false_type>
-__select_backend(std::execution::sequenced_policy, _IteratorTypes&&...)
+__select_backend(__pstl::execution::sequenced_policy, _IteratorTypes&&...)
 {
     return {};
 }
 
 template <class... _IteratorTypes>
 __serial_tag<__internal::__is_random_access_iterator<_IteratorTypes...>>
-__select_backend(std::execution::unsequenced_policy, _IteratorTypes&&...)
+__select_backend(__pstl::execution::unsequenced_policy, _IteratorTypes&&...)
 {
     return {};
 }
 
 template <class... _IteratorTypes>
 __tag_type</*_IsVector = */ std::false_type, _IteratorTypes...>
-__select_backend(std::execution::parallel_policy, _IteratorTypes&&...)
+__select_backend(__pstl::execution::parallel_policy, _IteratorTypes&&...)
 {
     return {};
 }
 
 template <class... _IteratorTypes>
 __tag_type<__internal::__is_random_access_iterator<_IteratorTypes...>, _IteratorTypes...>
-__select_backend(std::execution::parallel_unsequenced_policy, _IteratorTypes&&...)
+__select_backend(__pstl::execution::parallel_unsequenced_policy, _IteratorTypes&&...)
 {
     return {};
 }
