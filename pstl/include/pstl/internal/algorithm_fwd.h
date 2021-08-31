@@ -958,17 +958,18 @@ _OutputIterator __brick_merge(_RandomAccessIterator1, _RandomAccessIterator1, _R
                               _RandomAccessIterator2, _OutputIterator, _Compare,
                               /* __is_vector = */ std::true_type) noexcept;
 
-template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
-          class _Compare>
+template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
+          class _Compare, class _IsVector>
 _OutputIterator
-__pattern_merge(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                _OutputIterator, _Compare) noexcept;
+__pattern_merge(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
+                _OutputIterator, _Compare, _IsVector, /* is_parallel = */ std::false_type) noexcept;
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
-          class _OutputIterator, class _Compare>
+template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _OutputIterator,
+          class _Compare, class _IsVector>
 _OutputIterator
-__pattern_merge(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
-                _RandomAccessIterator2, _RandomAccessIterator2, _OutputIterator, _Compare);
+__pattern_merge(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
+                _RandomAccessIterator2, _OutputIterator, _Compare, _IsVector,
+                /* is_parallel = */ std::true_type);
 
 //------------------------------------------------------------------------
 // inplace_merge
@@ -982,15 +983,17 @@ template <class _RandomAccessIterator, class _Compare>
 void __brick_inplace_merge(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare,
                            /* __is_vector = */ std::true_type) noexcept;
 
-template <class _Tag, class _ExecutionPolicy, class _BidirectionalIterator, class _Compare>
+template <class _ExecutionPolicy, class _BidirectionalIterator, class _Compare, class _IsVector>
 void
-__pattern_inplace_merge(_Tag, _ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator,
-                        _BidirectionalIterator, _Compare) noexcept;
+__pattern_inplace_merge(_ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator, _BidirectionalIterator,
+                        _Compare, _IsVector,
+                        /* is_parallel = */ std::false_type) noexcept;
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
+template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
 void
-__pattern_inplace_merge(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
-                        _RandomAccessIterator, _Compare);
+__pattern_inplace_merge(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
+                        _Compare, _IsVector,
+                        /*is_parallel=*/std::true_type);
 
 //------------------------------------------------------------------------
 // includes
