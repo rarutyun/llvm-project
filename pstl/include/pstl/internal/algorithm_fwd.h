@@ -59,25 +59,22 @@ template <class _RandomAccessIterator, class _Function>
 void __brick_walk1(_RandomAccessIterator, _RandomAccessIterator, _Function,
                    /*vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Function, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Function>
 void
-__pattern_walk1(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Function, _IsVector,
-                /*parallel=*/std::false_type) noexcept;
+__pattern_walk1(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Function) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Function, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Function>
 void
-__pattern_walk1(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Function, _IsVector,
-                /*parallel=*/std::true_type);
+__pattern_walk1(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Function);
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Brick>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Brick>
 void
-__pattern_walk_brick(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Brick,
-                     /*parallel=*/std::false_type) noexcept;
+__pattern_walk_brick(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Brick) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Brick>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Brick>
 void
-__pattern_walk_brick(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Brick,
-                     /*parallel=*/std::true_type);
+__pattern_walk_brick(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                     _Brick);
 
 //------------------------------------------------------------------------
 // walk1_n
@@ -91,25 +88,21 @@ template <class _RandomAccessIterator, class _DifferenceType, class _Function>
 _RandomAccessIterator __brick_walk1_n(_RandomAccessIterator, _DifferenceType, _Function,
                                       /*vectorTag=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Size, class _Function, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Size, class _Function>
 _ForwardIterator
-__pattern_walk1_n(_ExecutionPolicy&&, _ForwardIterator, _Size, _Function, _IsVector,
-                  /*is_parallel=*/std::false_type) noexcept;
+__pattern_walk1_n(_Tag, _ExecutionPolicy&&, _ForwardIterator, _Size, _Function) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Function, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Function>
 _RandomAccessIterator
-__pattern_walk1_n(_ExecutionPolicy&&, _RandomAccessIterator, _Size, _Function, _IsVector,
-                  /*is_parallel=*/std::true_type);
+__pattern_walk1_n(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _Size, _Function);
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Size, class _Brick>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Size, class _Brick>
 _ForwardIterator
-__pattern_walk_brick_n(_ExecutionPolicy&&, _ForwardIterator, _Size, _Brick,
-                       /*is_parallel=*/std::false_type) noexcept;
+__pattern_walk_brick_n(_Tag, _ExecutionPolicy&&, _ForwardIterator, _Size, _Brick) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Brick>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Brick>
 _RandomAccessIterator
-__pattern_walk_brick_n(_ExecutionPolicy&&, _RandomAccessIterator, _Size, _Brick,
-                       /*is_parallel=*/std::true_type);
+__pattern_walk_brick_n(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _Size, _Brick);
 
 //------------------------------------------------------------------------
 // walk2 (pseudo)
@@ -133,50 +126,48 @@ template <class _RandomAccessIterator1, class _Size, class _RandomAccessIterator
 _RandomAccessIterator2 __brick_walk2_n(_RandomAccessIterator1, _Size, _RandomAccessIterator2, _Function,
                                        /*vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Function, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Function>
 _ForwardIterator2
-__pattern_walk2(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _Function, _IsVector,
-                /*parallel=*/std::false_type) noexcept;
+__pattern_walk2(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _Function) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Function,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _Function>
 _RandomAccessIterator2
-__pattern_walk2(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2, _Function,
-                _IsVector,
-                /*parallel=*/std::true_type);
+__pattern_walk2(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
+                _RandomAccessIterator2, _Function);
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _Size, class _ForwardIterator2, class _Function,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _Size, class _ForwardIterator2,
+          class _Function>
 _ForwardIterator2
-__pattern_walk2_n(_ExecutionPolicy&&, _ForwardIterator1, _Size, _ForwardIterator2, _Function, _IsVector,
-                  /*parallel=*/std::false_type) noexcept;
+__pattern_walk2_n(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _Size, _ForwardIterator2, _Function) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _Size, class _RandomAccessIterator2,
-          class _Function, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _Size,
+          class _RandomAccessIterator2, class _Function>
 _RandomAccessIterator2
-__pattern_walk2_n(_ExecutionPolicy&&, _RandomAccessIterator1, _Size, _RandomAccessIterator2, _Function, _IsVector,
-                  /*parallel=*/std::true_type);
+__pattern_walk2_n(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _Size, _RandomAccessIterator2,
+                  _Function);
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Brick>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Brick>
 _ForwardIterator2
-__pattern_walk2_brick(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _Brick,
-                      /*parallel=*/std::false_type) noexcept;
+__pattern_walk2_brick(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
+                      _Brick) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Brick>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _Brick>
 _RandomAccessIterator2
-__pattern_walk2_brick(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                      _Brick,
-                      /*parallel=*/std::true_type);
+__pattern_walk2_brick(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
+                      _RandomAccessIterator2, _Brick);
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _Size, class _ForwardIterator2, class _Brick>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _Size, class _ForwardIterator2,
+          class _Brick>
 _ForwardIterator2
-__pattern_walk2_brick_n(_ExecutionPolicy&&, _ForwardIterator1, _Size, _ForwardIterator2, _Brick,
-                        /*parallel=*/std::false_type) noexcept;
+__pattern_walk2_brick_n(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _Size, _ForwardIterator2, _Brick) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _Size, class _RandomAccessIterator2, class _Brick>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _Size,
+          class _RandomAccessIterator2, class _Brick>
 _RandomAccessIterator2
-__pattern_walk2_brick_n(_ExecutionPolicy&&, _RandomAccessIterator1, _Size, _RandomAccessIterator2, _Brick,
-                        /*parallel=*/std::true_type);
+__pattern_walk2_brick_n(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _Size,
+                        _RandomAccessIterator2, _Brick);
 
 //------------------------------------------------------------------------
 // walk3 (pseudo)
@@ -193,18 +184,17 @@ _RandomAccessIterator3 __brick_walk3(_RandomAccessIterator1, _RandomAccessIterat
                                      _RandomAccessIterator3, _Function,
                                      /*vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _ForwardIterator3,
-          class _Function, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _ForwardIterator3,
+          class _Function>
 _ForwardIterator3
-__pattern_walk3(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator3,
-                _Function, _IsVector,
-                /*parallel=*/std::false_type) noexcept;
+__pattern_walk3(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator3,
+                _Function) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
-          class _RandomAccessIterator3, class _Function, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _RandomAccessIterator3, class _Function>
 _RandomAccessIterator3
-__pattern_walk3(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                _RandomAccessIterator3, _Function, _IsVector, /*parallel=*/std::true_type);
+__pattern_walk3(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
+                _RandomAccessIterator2, _RandomAccessIterator3, _Function);
 
 //------------------------------------------------------------------------
 // equal
@@ -507,15 +497,14 @@ template <class _RandomAccessIterator, class _BinaryPredicate>
 _RandomAccessIterator __brick_unique(_RandomAccessIterator, _RandomAccessIterator, _BinaryPredicate,
                                      /*is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _BinaryPredicate, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _BinaryPredicate>
 _ForwardIterator
-__pattern_unique(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _BinaryPredicate, _IsVector,
-                 /*is_parallel=*/std::false_type) noexcept;
+__pattern_unique(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _BinaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _BinaryPredicate, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _BinaryPredicate>
 _RandomAccessIterator
-__pattern_unique(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _BinaryPredicate, _IsVector,
-                 /*is_parallel=*/std::true_type) noexcept;
+__pattern_unique(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                 _BinaryPredicate) noexcept;
 
 //------------------------------------------------------------------------
 // unique_copy
@@ -613,15 +602,14 @@ template <class _RandomAccessIterator>
 _RandomAccessIterator __brick_rotate(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
                                      /*is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator>
 _ForwardIterator
-__pattern_rotate(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _ForwardIterator, _IsVector,
-                 /*is_parallel=*/std::false_type) noexcept;
+__pattern_rotate(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _ForwardIterator) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator>
 _RandomAccessIterator
-__pattern_rotate(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _IsVector,
-                 /*is_parallel=*/std::true_type);
+__pattern_rotate(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                 _RandomAccessIterator);
 
 //------------------------------------------------------------------------
 // rotate_copy
@@ -636,17 +624,15 @@ _OutputIterator __brick_rotate_copy(_RandomAccessIterator, _RandomAccessIterator
                                     _OutputIterator,
                                     /*__is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator>
 _OutputIterator
-__pattern_rotate_copy(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _ForwardIterator, _OutputIterator,
-                      _IsVector,
-                      /*is_parallel=*/std::false_type) noexcept;
+__pattern_rotate_copy(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _ForwardIterator,
+                      _OutputIterator) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator>
 _OutputIterator
-__pattern_rotate_copy(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
-                      _OutputIterator, _IsVector,
-                      /*is_parallel=*/std::true_type);
+__pattern_rotate_copy(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                      _RandomAccessIterator, _OutputIterator);
 
 //------------------------------------------------------------------------
 // is_partitioned
@@ -682,15 +668,14 @@ template <class _RandomAccessIterator, class _UnaryPredicate>
 _RandomAccessIterator __brick_partition(_RandomAccessIterator, _RandomAccessIterator, _UnaryPredicate,
                                         /*is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _UnaryPredicate, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _UnaryPredicate>
 _ForwardIterator
-__pattern_partition(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _UnaryPredicate, _IsVector,
-                    /*is_parallel=*/std::false_type) noexcept;
+__pattern_partition(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _UnaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _UnaryPredicate, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _UnaryPredicate>
 _RandomAccessIterator
-__pattern_partition(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _UnaryPredicate, _IsVector,
-                    /*is_parallel=*/std::true_type);
+__pattern_partition(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                    _UnaryPredicate);
 
 //------------------------------------------------------------------------
 // stable_partition
@@ -828,17 +813,15 @@ __pattern_adjacent_find(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccess
 //------------------------------------------------------------------------
 // nth_element
 //------------------------------------------------------------------------
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_nth_element(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare,
-                      _IsVector,
-                      /*is_parallel=*/std::false_type) noexcept;
+__pattern_nth_element(_Tag, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
+                      _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_nth_element(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare,
-                      _IsVector,
-                      /*is_parallel=*/std::true_type) noexcept;
+__pattern_nth_element(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                      _RandomAccessIterator, _Compare) noexcept;
 
 //------------------------------------------------------------------------
 // fill, fill_n
@@ -853,15 +836,13 @@ void
 __brick_fill(_ForwardIterator, _ForwardIterator, const _Tp&,
              /* __is_vector = */ std::false_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Tp, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Tp>
 void
-__pattern_fill(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, const _Tp&,
-               /*is_parallel=*/std::false_type, _IsVector) noexcept;
+__pattern_fill(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, const _Tp&) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Tp, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Tp>
 _RandomAccessIterator
-__pattern_fill(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, const _Tp&,
-               /*is_parallel=*/std::true_type, _IsVector);
+__pattern_fill(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, const _Tp&);
 
 template <class _RandomAccessIterator, class _Size, class _Tp>
 _RandomAccessIterator
@@ -873,15 +854,13 @@ _OutputIterator
 __brick_fill_n(_OutputIterator, _Size, const _Tp&,
                /* __is_vector = */ std::false_type) noexcept;
 
-template <class _ExecutionPolicy, class _OutputIterator, class _Size, class _Tp, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _OutputIterator, class _Size, class _Tp>
 _OutputIterator
-__pattern_fill_n(_ExecutionPolicy&&, _OutputIterator, _Size, const _Tp&,
-                 /*is_parallel=*/std::false_type, _IsVector) noexcept;
+__pattern_fill_n(_Tag, _ExecutionPolicy&&, _OutputIterator, _Size, const _Tp&) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Tp, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Size, class _Tp>
 _RandomAccessIterator
-__pattern_fill_n(_ExecutionPolicy&&, _RandomAccessIterator, _Size, const _Tp&,
-                 /*is_parallel=*/std::true_type, _IsVector);
+__pattern_fill_n(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _Size, const _Tp&);
 
 //------------------------------------------------------------------------
 // generate, generate_n
@@ -895,15 +874,14 @@ template <class _ForwardIterator, class _Generator>
 void __brick_generate(_ForwardIterator, _ForwardIterator, _Generator,
                       /* is_vector = */ std::false_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Generator, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Generator>
 void
-__pattern_generate(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Generator,
-                   /*is_parallel=*/std::false_type, _IsVector) noexcept;
+__pattern_generate(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Generator) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Generator, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Generator>
 _RandomAccessIterator
-__pattern_generate(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Generator,
-                   /*is_parallel=*/std::true_type, _IsVector);
+__pattern_generate(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                   _Generator);
 
 template <class _RandomAccessIterator, class Size, class _Generator>
 _RandomAccessIterator __brick_generate_n(_RandomAccessIterator, Size, _Generator,
@@ -913,15 +891,13 @@ template <class OutputIterator, class Size, class _Generator>
 OutputIterator __brick_generate_n(OutputIterator, Size, _Generator,
                                   /* is_vector = */ std::false_type) noexcept;
 
-template <class _ExecutionPolicy, class OutputIterator, class Size, class _Generator, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class OutputIterator, class Size, class _Generator>
 OutputIterator
-__pattern_generate_n(_ExecutionPolicy&&, OutputIterator, Size, _Generator,
-                     /*is_parallel=*/std::false_type, _IsVector) noexcept;
+__pattern_generate_n(_Tag, _ExecutionPolicy&&, OutputIterator, Size, _Generator) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class Size, class _Generator, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class Size, class _Generator>
 _RandomAccessIterator
-__pattern_generate_n(_ExecutionPolicy&&, _RandomAccessIterator, Size, _Generator,
-                     /*is_parallel=*/std::true_type, _IsVector);
+__pattern_generate_n(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, Size, _Generator);
 
 //------------------------------------------------------------------------
 // remove
@@ -934,15 +910,14 @@ template <class _RandomAccessIterator, class _UnaryPredicate>
 _RandomAccessIterator __brick_remove_if(_RandomAccessIterator, _RandomAccessIterator, _UnaryPredicate,
                                         /* __is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _UnaryPredicate, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _UnaryPredicate>
 _ForwardIterator
-__pattern_remove_if(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _UnaryPredicate, _IsVector,
-                    /*is_parallel*/ std::false_type) noexcept;
+__pattern_remove_if(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _UnaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _UnaryPredicate, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _UnaryPredicate>
 _RandomAccessIterator
-__pattern_remove_if(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _UnaryPredicate, _IsVector,
-                    /*is_parallel*/ std::true_type) noexcept;
+__pattern_remove_if(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                    _UnaryPredicate) noexcept;
 
 //------------------------------------------------------------------------
 // merge
@@ -983,17 +958,15 @@ template <class _RandomAccessIterator, class _Compare>
 void __brick_inplace_merge(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare,
                            /* __is_vector = */ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _BidirectionalIterator, class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _BidirectionalIterator, class _Compare>
 void
-__pattern_inplace_merge(_ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator, _BidirectionalIterator,
-                        _Compare, _IsVector,
-                        /* is_parallel = */ std::false_type) noexcept;
+__pattern_inplace_merge(_Tag, _ExecutionPolicy&&, _BidirectionalIterator, _BidirectionalIterator,
+                        _BidirectionalIterator, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Compare>
 void
-__pattern_inplace_merge(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator,
-                        _Compare, _IsVector,
-                        /*is_parallel=*/std::true_type);
+__pattern_inplace_merge(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                        _RandomAccessIterator, _Compare);
 
 //------------------------------------------------------------------------
 // includes
@@ -1024,17 +997,17 @@ _OutputIterator __brick_set_union(_RandomAccessIterator1, _RandomAccessIterator1
                                   _RandomAccessIterator2, _OutputIterator, _Compare,
                                   /*__is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
-          class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
+          class _Compare>
 _OutputIterator
-__pattern_set_union(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                    _OutputIterator, _Compare, _IsVector, /*is_parallel=*/std::false_type) noexcept;
+__pattern_set_union(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
+                    _ForwardIterator2, _OutputIterator, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _OutputIterator,
-          class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _OutputIterator, class _Compare>
 _OutputIterator
-__pattern_set_union(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                    _RandomAccessIterator2, _OutputIterator, _Compare, _IsVector, /*is_parallel=*/std::true_type);
+__pattern_set_union(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
+                    _RandomAccessIterator2, _RandomAccessIterator2, _OutputIterator, _Compare);
 
 //------------------------------------------------------------------------
 // set_intersection
@@ -1078,17 +1051,17 @@ _OutputIterator __brick_set_difference(_RandomAccessIterator1, _RandomAccessIter
                                        _RandomAccessIterator2, _OutputIterator, _Compare,
                                        /*__is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
-          class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
+          class _Compare>
 _OutputIterator
-__pattern_set_difference(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _ForwardIterator2,
-                         _OutputIterator, _Compare, _IsVector, /*is_parallel=*/std::false_type) noexcept;
+__pattern_set_difference(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
+                         _ForwardIterator2, _OutputIterator, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _OutputIterator,
-          class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _OutputIterator, class _Compare>
 _OutputIterator
-__pattern_set_difference(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                         _RandomAccessIterator2, _OutputIterator, _Compare, _IsVector, /*is_parallel=*/std::true_type);
+__pattern_set_difference(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
+                         _RandomAccessIterator2, _RandomAccessIterator2, _OutputIterator, _Compare);
 
 //------------------------------------------------------------------------
 // set_symmetric_difference
@@ -1104,19 +1077,18 @@ _OutputIterator __brick_set_symmetric_difference(_RandomAccessIterator1, _Random
                                                  _RandomAccessIterator2, _OutputIterator, _Compare,
                                                  /*__is_vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
-          class _Compare, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _OutputIterator,
+          class _Compare>
 _OutputIterator
-__pattern_set_symmetric_difference(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
-                                   _ForwardIterator2, _OutputIterator, _Compare, _IsVector,
-                                   /*is_parallel=*/std::false_type) noexcept;
+__pattern_set_symmetric_difference(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
+                                   _ForwardIterator2, _OutputIterator, _Compare) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _OutputIterator,
-          class _Compare, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _OutputIterator, class _Compare>
 _OutputIterator
-__pattern_set_symmetric_difference(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1,
-                                   _RandomAccessIterator2, _RandomAccessIterator2, _OutputIterator, _Compare, _IsVector,
-                                   /*is_parallel=*/std::true_type);
+__pattern_set_symmetric_difference(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1,
+                                   _RandomAccessIterator1, _RandomAccessIterator2, _RandomAccessIterator2,
+                                   _OutputIterator, _Compare);
 
 //------------------------------------------------------------------------
 // is_heap_until

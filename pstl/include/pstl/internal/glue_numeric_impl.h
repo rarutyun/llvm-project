@@ -218,12 +218,10 @@ adjacent_difference(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _Forwa
     if (__first == __last)
         return __d_first;
 
-    return __pstl::__internal::__pattern_adjacent_difference(
-        std::forward<_ExecutionPolicy>(__exec), __first, __last, __d_first, __op,
-        __pstl::__internal::__is_vectorization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2>(
-            __exec),
-        __pstl::__internal::__is_parallelization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2>(
-            __exec));
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __d_first);
+
+    return __pstl::__internal::__pattern_adjacent_difference(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
+                                                             __first, __last, __d_first, __op);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
