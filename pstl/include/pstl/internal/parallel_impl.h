@@ -64,12 +64,12 @@ __parallel_find(_BackendTag __tag, _ExecutionPolicy&& __exec, _Index __first, _I
 // parallel_or
 //------------------------------------------------------------------------
 //! Return true if brick f[i,j) returns true for some subrange [i,j) of [first,last)
-template <class _ExecutionPolicy, class _Index, class _Brick>
+template <class _BackendTag, class _ExecutionPolicy, class _Index, class _Brick>
 bool
-__parallel_or(_ExecutionPolicy&& __exec, _Index __first, _Index __last, _Brick __f)
+__parallel_or(_BackendTag __tag, _ExecutionPolicy&& __exec, _Index __first, _Index __last, _Brick __f)
 {
     std::atomic<bool> __found(false);
-    __par_backend::__parallel_for(std::forward<_ExecutionPolicy>(__exec), __first, __last,
+    __par_backend::__parallel_for(__tag, std::forward<_ExecutionPolicy>(__exec), __first, __last,
                                   [__f, &__found](_Index __i, _Index __j) {
                                       if (!__found.load(std::memory_order_relaxed) && __f(__i, __j))
                                       {
