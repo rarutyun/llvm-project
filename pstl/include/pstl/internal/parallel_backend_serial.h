@@ -111,8 +111,8 @@ __parallel_transform_scan(_ExecutionPolicy&&, _Index __n, _UnaryOp, _Tp __init, 
 
 template <class _ExecutionPolicy, typename _RandomAccessIterator, typename _Compare, typename _LeafSort>
 void
-__parallel_stable_sort(_ExecutionPolicy&&, _RandomAccessIterator __first, _RandomAccessIterator __last, _Compare __comp,
-                       _LeafSort __leaf_sort, std::size_t = 0)
+__parallel_stable_sort(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _RandomAccessIterator __first,
+                       _RandomAccessIterator __last, _Compare __comp, _LeafSort __leaf_sort, std::size_t = 0)
 {
     __leaf_sort(__first, __last, __comp);
 }
