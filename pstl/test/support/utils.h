@@ -265,8 +265,7 @@ struct MemoryChecker {
         inc_alive_objects();
         _state = alive_state;
     }
-    MemoryChecker&
-    operator=(MemoryChecker&& other) {
+    MemoryChecker& operator=(MemoryChecker&& other) {
         // check if we do not assign over uninitialized memory
         EXPECT_TRUE(state() == alive_state, "wrong effect from MemoryChecker::operator=(MemoryChecker&& other): attemp to assign to non-existing object");
         EXPECT_TRUE(other.state() == alive_state, "wrong effect from MemoryChecker::operator=(MemoryChecker&& other): attemp to assign from non-existing object");
@@ -275,8 +274,7 @@ struct MemoryChecker {
 
         return *this;
     }
-    MemoryChecker&
-    operator=(const MemoryChecker& other) {
+    MemoryChecker& operator=(const MemoryChecker& other) {
         // check if we do not assign over uninitialized memory
         EXPECT_TRUE(state() == alive_state, "wrong effect from MemoryChecker::operator=(const MemoryChecker& other): attemp to assign to non-existing object");
         EXPECT_TRUE(other.state() == alive_state, "wrong effect from MemoryChecker::operator=(const MemoryChecker& other): attemp to assign from non-existing object");
@@ -287,8 +285,7 @@ struct MemoryChecker {
     }
     ~MemoryChecker() {
         // check if we do not double destruct the object
-        EXPECT_TRUE(state() == alive_state,
-                    "wrong effect from ~MemoryChecker(): attemp to destroy non-existing object");
+        EXPECT_TRUE(state() == alive_state, "wrong effect from ~MemoryChecker(): attemp to destroy non-existing object");
         // set destructed state and decrement counter for living object
         static_cast<volatile std::int64_t&>(_state) = dead_state;
         dec_alive_objects();
@@ -306,7 +303,7 @@ private:
 
 std::atomic<std::int64_t> MemoryChecker::alive_object_counter{0};
 
-td::ostream& operator<<(std::ostream& os, const MemoryChecker& val) { return (os << val.value()); }
+std::ostream& operator<<(std::ostream& os, const MemoryChecker& val) { return (os << val.value()); }
 bool operator==(const MemoryChecker& v1, const MemoryChecker& v2) { return v1.value() == v2.value(); }
 bool operator<(const MemoryChecker& v1, const MemoryChecker& v2) { return v1.value() < v2.value(); }
 
