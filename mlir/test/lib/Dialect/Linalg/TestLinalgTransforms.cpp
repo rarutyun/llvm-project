@@ -83,10 +83,6 @@ struct TestLinalgTransforms
       llvm::cl::desc("Test a set of patterns that rewrite a linalg contraction "
                      "in vector.contract form"),
       llvm::cl::init(false)};
-  Option<bool> testAffineMinSCFCanonicalizationPatterns{
-      *this, "test-affine-min-scf-canonicalization-patterns",
-      llvm::cl::desc("Test affine-min + scf canonicalization patterns."),
-      llvm::cl::init(false)};
   Option<bool> testTileAndPadPattern{
       *this, "test-tile-and-pad-pattern",
       llvm::cl::desc("Test tile and pad pattern"), llvm::cl::init(false)};
@@ -96,6 +92,15 @@ struct TestLinalgTransforms
   Option<bool> testTransformPadTensor{
       *this, "test-transform-pad-tensor",
       llvm::cl::desc("Test transform pad tensor by copying with generic ops"),
+      llvm::cl::init(false)};
+  Option<bool> testGeneralizePadTensor{
+      *this, "test-generalize-pad-tensor",
+      llvm::cl::desc("Test transform pad tensor by copying with generic ops"),
+      llvm::cl::init(false)};
+  Option<bool> testSwapSubTensorPadTensor{
+      *this, "test-swap-subtensor-padtensor",
+      llvm::cl::desc("Test rewrite of subtensor(pad_tensor) into "
+                     "pad_tensor(subtensor)"),
       llvm::cl::init(false)};
   ListOption<int64_t> tileSizesForPadding{
       *this, "tile-sizes-for-padding",
@@ -230,8 +235,8 @@ static void applyPatterns(FuncOp funcOp) {
   patterns.add<LinalgPromotionPattern<FillOp>>(
       ctx,
       LinalgPromotionOptions()
-          .setOperandsToPromote({0})
-          .setUseFullTileBuffers({true})
+          .setOperandsToPromote({1})
+          .setUseFullTileBuffers({false, true})
           .setAlignment(32),
       LinalgTransformationFilter(
           Identifier::get("_promote_views_aligned_", ctx),
@@ -304,10 +309,11 @@ static LogicalResult copyCallBackFn(OpBuilder &b, Value src, Value dst,
   auto floatType = src.getType().cast<MemRefType>().getElementType();
   if (!floatType.isa<FloatType>())
     return failure();
-  if (!isOutput)
-    b.create<FillOp>(
-        src.getLoc(), dst,
-        b.create<ConstantOp>(src.getLoc(), FloatAttr::get(floatType, 42.0)));
+  if (!isOutput) {
+    Value cst =
+        b.create<ConstantOp>(src.getLoc(), FloatAttr::get(floatType, 42.0));
+    b.create<FillOp>(src.getLoc(), cst, dst);
+  }
   b.create<CopyOp>(src.getLoc(), src, dst);
   return success();
 }
@@ -524,16 +530,16 @@ static void applyPadTensorToGenericPatterns(FuncOp funcOp) {
   (void)applyPatternsAndFoldGreedily(funcOp, std::move(patterns));
 }
 
-static void applyAffineMinSCFCanonicalizationPatterns(FuncOp funcOp) {
-  RewritePatternSet foldPattern(funcOp.getContext());
-  foldPattern.add<AffineMinSCFCanonicalizationPattern>(funcOp.getContext());
-  FrozenRewritePatternSet frozenPatterns(std::move(foldPattern));
+static void applyGeneralizePadTensorPatterns(FuncOp funcOp) {
+  RewritePatternSet patterns(funcOp.getContext());
+  patterns.add<GeneralizePadTensorOpPattern>(funcOp.getContext());
+  (void)applyPatternsAndFoldGreedily(funcOp, std::move(patterns));
+}
 
-  // Explicitly walk and apply the pattern locally to avoid more general folding
-  // on the rest of the IR.
-  funcOp.walk([&frozenPatterns](AffineMinOp minOp) {
-    (void)applyOpPatternsAndFold(minOp, frozenPatterns);
-  });
+static void applyExtractSliceOfPadTensorSwapPattern(FuncOp funcOp) {
+  RewritePatternSet patterns(funcOp.getContext());
+  patterns.add<ExtractSliceOfPadTensorSwapPattern>(funcOp.getContext());
+  (void)applyPatternsAndFoldGreedily(funcOp, std::move(patterns));
 }
 
 // For now, just assume it is the zero of type.
@@ -602,8 +608,10 @@ void TestLinalgTransforms::runOnFunction() {
     return applyLinalgToVectorPatterns(getFunction());
   if (testTransformPadTensor)
     return applyPadTensorToGenericPatterns(getFunction());
-  if (testAffineMinSCFCanonicalizationPatterns)
-    return applyAffineMinSCFCanonicalizationPatterns(getFunction());
+  if (testGeneralizePadTensor)
+    return applyGeneralizePadTensorPatterns(getFunction());
+  if (testSwapSubTensorPadTensor)
+    return applyExtractSliceOfPadTensorSwapPattern(getFunction());
   if (testTileAndPadPattern)
     return applyTileAndPadPattern(getFunction(), tileSizesForPadding);
   if (testHoistPadding) {

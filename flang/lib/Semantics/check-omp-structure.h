@@ -96,6 +96,10 @@ static OmpDirectiveSet nestedWorkshareErrSet{
 static OmpDirectiveSet nestedMasterErrSet{
     OmpDirectiveSet{llvm::omp::Directive::OMPD_atomic} | taskGeneratingSet |
     workShareSet};
+static OmpDirectiveSet nestedBarrierErrSet{
+    OmpDirectiveSet{Directive::OMPD_critical, Directive::OMPD_ordered,
+        Directive::OMPD_atomic, Directive::OMPD_master} |
+    taskGeneratingSet | workShareSet};
 static OmpClauseSet privateSet{
     Clause::OMPC_private, Clause::OMPC_firstprivate, Clause::OMPC_lastprivate};
 static OmpClauseSet privateReductionSet{
@@ -214,6 +218,7 @@ private:
   void SetLoopInfo(const parser::OpenMPLoopConstruct &x);
   void CheckIsLoopIvPartOfClause(
       llvmOmpClause clause, const parser::OmpObjectList &ompObjectList);
+  bool CheckTargetBlockOnlyTeams(const parser::Block &);
   void CheckWorkshareBlockStmts(const parser::Block &, parser::CharBlock);
 
   void CheckLoopItrVariableIsInt(const parser::OpenMPLoopConstruct &x);
@@ -221,6 +226,9 @@ private:
   void CheckCycleConstraints(const parser::OpenMPLoopConstruct &x);
   void CheckDistLinear(const parser::OpenMPLoopConstruct &x);
   void CheckSIMDNest(const parser::OpenMPConstruct &x);
+  void CheckTargetNest(const parser::OpenMPConstruct &x);
+  void CheckCancellationNest(
+      const parser::CharBlock &source, const parser::OmpCancelType::Type &type);
   std::int64_t GetOrdCollapseLevel(const parser::OpenMPLoopConstruct &x);
   void CheckIfDoOrderedClause(const parser::OmpBlockDirective &blkDirectiv);
   bool CheckReductionOperators(const parser::OmpClause::Reduction &);
@@ -228,6 +236,7 @@ private:
       const parser::DefinedOperator::IntrinsicOperator &);
   void CheckReductionTypeList(const parser::OmpClause::Reduction &);
   void CheckMasterNesting(const parser::OpenMPBlockConstruct &x);
+  void CheckBarrierNesting(const parser::OpenMPSimpleStandaloneConstruct &x);
   void CheckReductionArraySection(const parser::OmpObjectList &ompObjectList);
   void CheckIntentInPointerAndDefinable(
       const parser::OmpObjectList &, const llvm::omp::Clause);
@@ -241,6 +250,17 @@ private:
   void CheckPredefinedAllocatorRestriction(
       const parser::CharBlock &source, const parser::Name &name);
   bool isPredefinedAllocator{false};
+  void EnterDirectiveNest(const int index) { directiveNest_[index]++; }
+  void ExitDirectiveNest(const int index) { directiveNest_[index]--; }
+  int GetDirectiveNest(const int index) { return directiveNest_[index]; }
+
+  enum directiveNestType {
+    SIMDNest,
+    TargetBlockOnlyTeams,
+    TargetNest,
+    LastType
+  };
+  int directiveNest_[LastType + 1] = {0};
 };
 } // namespace Fortran::semantics
 #endif // FORTRAN_SEMANTICS_CHECK_OMP_STRUCTURE_H_

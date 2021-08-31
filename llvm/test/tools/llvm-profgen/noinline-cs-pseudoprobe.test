@@ -1,5 +1,8 @@
 ; RUN: llvm-profgen --format=text --perfscript=%S/Inputs/noinline-cs-pseudoprobe.perfscript --binary=%S/Inputs/noinline-cs-pseudoprobe.perfbin --output=%t --show-unwinder-output --profile-summary-cold-count=0 | FileCheck %s --check-prefix=CHECK-UNWINDER
 ; RUN: FileCheck %s --input-file %t
+; RUN: llvm-profgen --format=text --perfscript=%S/Inputs/noinline-cs-pseudoprobe.aggperfscript --binary=%S/Inputs/noinline-cs-pseudoprobe.perfbin --output=%t --show-unwinder-output --profile-summary-cold-count=0 | FileCheck %s --check-prefix=CHECK-UNWINDER
+; RUN: FileCheck %s --input-file %t
+
 
 ; CHECK:     [main:2 @ foo]:75:0
 ; CHECK-NEXT: 1: 0
@@ -11,7 +14,7 @@
 ; CHECK-NEXT: 7: 0
 ; CHECK-NEXT: 8: 15 bar:15
 ; CHECK-NEXT: 9: 0
-; CHECK-NEXT: !CFGChecksum: 138950591924
+; CHECK-NEXT: !CFGChecksum: 563088904013236
 ; CHECK:[main:2 @ foo:8 @ bar]:30:15
 ; CHECK-NEXT: 1: 15
 ; CHECK-NEXT: 4: 15
