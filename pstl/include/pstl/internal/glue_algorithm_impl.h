@@ -787,7 +787,7 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _RandomAccess
 partial_sort_copy(_ExecutionPolicy&& __exec, _ForwardIterator __first, _ForwardIterator __last,
                   _RandomAccessIterator __d_first, _RandomAccessIterator __d_last, _Compare __comp)
 {
-    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __d_first);
 
     return __pstl::__internal::__pattern_partial_sort_copy(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
                                                            __first, __last, __d_first, __d_last, __comp);
