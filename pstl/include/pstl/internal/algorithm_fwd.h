@@ -450,16 +450,13 @@ void
 __brick_partition_by_mask(_RandomAccessIterator, _RandomAccessIterator, _OutputIterator1, _OutputIterator2, bool*,
                           /*vector=*/std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryPredicate, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryPredicate>
 _OutputIterator
-__pattern_copy_if(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator, _UnaryPredicate, _IsVector,
-                  /*parallel=*/std::false_type) noexcept;
+__pattern_copy_if(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator, _UnaryPredicate) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryPredicate,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryPredicate>
 _OutputIterator
-__pattern_copy_if(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator, _UnaryPredicate,
-                  _IsVector, /*parallel=*/std::true_type);
+__pattern_copy_if(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator, _UnaryPredicate);
 
 //------------------------------------------------------------------------
 // count
