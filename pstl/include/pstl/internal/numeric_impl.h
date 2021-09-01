@@ -216,8 +216,8 @@ __brick_transform_scan(_RandomAccessIterator __first, _RandomAccessIterator __la
                                               /*is_vector=*/std::false_type());
 }
 
-template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation,
-          class _Tp, class _BinaryOperation, class _Inclusive>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
+          class _BinaryOperation, class _Inclusive>
 _OutputIterator
 __pattern_transform_scan(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                          _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init, _BinaryOperation __binary_op,
@@ -259,12 +259,12 @@ __pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
     });
 }
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
-          class _UnaryOperation, class _Tp, class _BinaryOperation, class _Inclusive>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
+          class _BinaryOperation, class _Inclusive>
 typename std::enable_if<std::is_floating_point<_Tp>::value, _OutputIterator>::type
-__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first,
-                         _RandomAccessIterator __last, _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init,
-                         _BinaryOperation __binary_op, _Inclusive)
+__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAccessIterator __last,
+                         _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init, _BinaryOperation __binary_op,
+                         _Inclusive)
 {
     using __backend_tag = typename decltype(__tag)::__backend_tag;
 
@@ -277,7 +277,7 @@ __pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
     }
     return __internal::__except_handler([&]() {
         __par_backend::__parallel_strict_scan(
-            std::forward<_ExecutionPolicy>(__exec), __n, __init,
+            __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __n, __init,
             [__first, __unary_op, __binary_op, __result](_DifferenceType __i, _DifferenceType __len) {
                 return __internal::__brick_transform_scan(__first + __i, __first + (__i + __len), __result + __i,
                                                           __unary_op, _Tp{}, __binary_op, _Inclusive(), _IsVector{})
