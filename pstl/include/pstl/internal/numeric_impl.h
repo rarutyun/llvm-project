@@ -217,7 +217,7 @@ __brick_transform_scan(_RandomAccessIterator __first, _RandomAccessIterator __la
 }
 
 template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation,
-          class _Tp, class _BinaryOperation, class _Inclusive, class _IsVector>
+          class _Tp, class _BinaryOperation, class _Inclusive>
 _OutputIterator
 __pattern_transform_scan(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                          _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init, _BinaryOperation __binary_op,
