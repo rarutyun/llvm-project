@@ -216,8 +216,8 @@ __brick_transform_scan(_RandomAccessIterator __first, _RandomAccessIterator __la
                                               /*is_vector=*/std::false_type());
 }
 
-template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
-          class _BinaryOperation, class _Inclusive>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation,
+          class _Tp, class _BinaryOperation, class _Inclusive>
 _OutputIterator
 __pattern_transform_scan(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                          _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init, _BinaryOperation __binary_op,
@@ -259,12 +259,12 @@ __pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
     });
 }
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
-          class _BinaryOperation, class _Inclusive>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
+          class _UnaryOperation, class _Tp, class _BinaryOperation, class _Inclusive>
 typename std::enable_if<std::is_floating_point<_Tp>::value, _OutputIterator>::type
-__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAccessIterator __last,
-                         _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init, _BinaryOperation __binary_op,
-                         _Inclusive)
+__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first,
+                         _RandomAccessIterator __last, _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init,
+                         _BinaryOperation __binary_op, _Inclusive)
 {
     using __backend_tag = typename decltype(__tag)::__backend_tag;
 
@@ -349,14 +349,15 @@ __pattern_adjacent_difference(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&
     using __backend_tag = typename decltype(__tag)::__backend_tag;
 
     *__d_first = *__first;
-    __par_backend::__parallel_for(__backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last - 1,
-                                  [&__op, __d_first, __first](_RandomAccessIterator1 __b, _RandomAccessIterator1 __e) {
-                                      _RandomAccessIterator2 __d_b = __d_first + (__b - __first);
-                                      __internal::__brick_walk3(__b, __e, __b + 1, __d_b + 1,
-                                                                [&__op](_ReferenceType1 __x, _ReferenceType1 __y,
-                                                                        _ReferenceType2 __z) { __z = __op(__y, __x); },
-                                                                _IsVector{});
-                                  });
+    __par_backend::__parallel_for(
+        __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last - 1,
+        [&__op, __d_first, __first](_RandomAccessIterator1 __b, _RandomAccessIterator1 __e) {
+            _RandomAccessIterator2 __d_b = __d_first + (__b - __first);
+            __internal::__brick_walk3(
+                __b, __e, __b + 1, __d_b + 1,
+                [&__op](_ReferenceType1 __x, _ReferenceType1 __y, _ReferenceType2 __z) { __z = __op(__y, __x); },
+                _IsVector{});
+        });
     return __d_first + (__last - __first);
 }
 

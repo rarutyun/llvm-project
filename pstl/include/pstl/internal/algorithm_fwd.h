@@ -452,11 +452,14 @@ __brick_partition_by_mask(_RandomAccessIterator, _RandomAccessIterator, _OutputI
 
 template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryPredicate>
 _OutputIterator
-__pattern_copy_if(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator, _UnaryPredicate) noexcept;
+__pattern_copy_if(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator,
+                  _UnaryPredicate) noexcept;
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryPredicate>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
+          class _UnaryPredicate>
 _OutputIterator
-__pattern_copy_if(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator, _UnaryPredicate);
+__pattern_copy_if(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                  _OutputIterator, _UnaryPredicate);
 
 //------------------------------------------------------------------------
 // count
@@ -516,7 +519,8 @@ _OutputIterator __brick_unique_copy(_RandomAccessIterator, _RandomAccessIterator
 
 template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _BinaryPredicate>
 _OutputIterator
-__pattern_unique_copy(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator, _BinaryPredicate) noexcept;
+__pattern_unique_copy(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator,
+                      _BinaryPredicate) noexcept;
 
 template <class _ExecutionPolicy, class _DifferenceType, class _RandomAccessIterator, class _BinaryPredicate>
 _DifferenceType
@@ -528,10 +532,11 @@ _DifferenceType
 __brick_calc_mask_2(_RandomAccessIterator, _RandomAccessIterator, bool* __restrict, _BinaryPredicate,
                     /*vector=*/std::true_type) noexcept;
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _BinaryPredicate>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
+          class _BinaryPredicate>
 _OutputIterator
-__pattern_unique_copy(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator,
-                      _BinaryPredicate);
+__pattern_unique_copy(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                      _OutputIterator, _BinaryPredicate);
 
 //------------------------------------------------------------------------
 // reverse
@@ -709,14 +714,14 @@ std::pair<_OutputIterator1, _OutputIterator2> __brick_partition_copy(_RandomAcce
 template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator1, class _OutputIterator2,
           class _UnaryPredicate>
 std::pair<_OutputIterator1, _OutputIterator2>
-__pattern_partition_copy(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator1, _OutputIterator2,
-                         _UnaryPredicate) noexcept;
+__pattern_partition_copy(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator1,
+                         _OutputIterator2, _UnaryPredicate) noexcept;
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator1, class _OutputIterator2,
-          class _UnaryPredicate>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator1,
+          class _OutputIterator2, class _UnaryPredicate>
 std::pair<_OutputIterator1, _OutputIterator2>
-__pattern_partition_copy(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator1,
-                         _OutputIterator2, _UnaryPredicate);
+__pattern_partition_copy(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                         _OutputIterator1, _OutputIterator2, _UnaryPredicate);
 
 //------------------------------------------------------------------------
 // sort
@@ -1016,11 +1021,12 @@ _OutputIterator
 __pattern_set_intersection(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2,
                            _ForwardIterator2, _OutputIterator, _Compare) noexcept;
 
-template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _OutputIterator,
-          class _Compare>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _OutputIterator, class _Compare>
 _OutputIterator
-__pattern_set_intersection(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                           _RandomAccessIterator2, _OutputIterator, _Compare);
+__pattern_set_intersection(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1,
+                           _RandomAccessIterator1, _RandomAccessIterator2, _RandomAccessIterator2, _OutputIterator,
+                           _Compare);
 
 //------------------------------------------------------------------------
 // set_difference

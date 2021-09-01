@@ -274,8 +274,8 @@ copy_if(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIterator1 
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __result);
 
-    return __pstl::__internal::__pattern_copy_if(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __result, __pred);
+    return __pstl::__internal::__pattern_copy_if(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                 __last, __result, __pred);
 }
 
 // [alg.swap]
@@ -496,8 +496,8 @@ unique_copy(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _ForwardIterat
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __result);
 
-    return __pstl::__internal::__pattern_unique_copy(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __result, __pred);
+    return __pstl::__internal::__pattern_unique_copy(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                     __last, __result, __pred);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2>
@@ -591,8 +591,8 @@ partition_copy(_ExecutionPolicy&& __exec, _ForwardIterator __first, _ForwardIter
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __out_true, __out_false);
 
-    return __pstl::__internal::__pattern_partition_copy(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first, __last, __out_true, __out_false, __pred);
+    return __pstl::__internal::__pattern_partition_copy(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
+                                                        __last, __out_true, __out_false, __pred);
 }
 
 // [alg.sort]
@@ -910,8 +910,8 @@ set_intersection(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _Forward
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2, __result);
 
-    return __pstl::__internal::__pattern_set_intersection(
-        __dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __result, __comp);
+    return __pstl::__internal::__pattern_set_intersection(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
+                                                          __first1, __last1, __first2, __last2, __result, __comp);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _ForwardIterator>
