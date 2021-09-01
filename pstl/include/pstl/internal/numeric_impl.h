@@ -212,15 +212,15 @@ __brick_transform_scan(_RandomAccessIterator __first, _RandomAccessIterator __la
                                               /*is_vector=*/std::false_type());
 }
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
-          class _BinaryOperation, class _Inclusive, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
+          class _BinaryOperation, class _Inclusive>
 _OutputIterator
-__pattern_transform_scan(_ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
+__pattern_transform_scan(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                          _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init, _BinaryOperation __binary_op,
-                         _Inclusive, _IsVector __is_vector, /*is_parallel=*/std::false_type) noexcept
+                         _Inclusive) noexcept
 {
     return __internal::__brick_transform_scan(__first, __last, __result, __unary_op, __init, __binary_op, _Inclusive(),
-                                              __is_vector)
+                                              typename _Tag::__is_vector{})
         .first;
 }
 
@@ -254,13 +254,15 @@ __pattern_transform_scan(_ExecutionPolicy&& __exec, _RandomAccessIterator __firs
     });
 }
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
-          class _BinaryOperation, class _Inclusive, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
+          class _BinaryOperation, class _Inclusive>
 typename std::enable_if<std::is_floating_point<_Tp>::value, _OutputIterator>::type
-__pattern_transform_scan(_ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAccessIterator __last,
+__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first, _RandomAccessIterator __last,
                          _OutputIterator __result, _UnaryOperation __unary_op, _Tp __init, _BinaryOperation __binary_op,
-                         _Inclusive, _IsVector __is_vector, /*is_parallel=*/std::true_type)
+                         _Inclusive)
 {
+    using __backend_tag = typename decltype(__tag)::__backend_tag;
+
     typedef typename std::iterator_traits<_RandomAccessIterator>::difference_type _DifferenceType;
     _DifferenceType __n = __last - __first;
 
@@ -270,10 +272,10 @@ __pattern_transform_scan(_ExecutionPolicy&& __exec, _RandomAccessIterator __firs
     }
     return __internal::__except_handler([&]() {
         __par_backend::__parallel_strict_scan(
-            std::forward<_ExecutionPolicy>(__exec), __n, __init,
-            [__first, __unary_op, __binary_op, __result, __is_vector](_DifferenceType __i, _DifferenceType __len) {
+            __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __n, __init,
+            [__first, __unary_op, __binary_op, __result](_DifferenceType __i, _DifferenceType __len) {
                 return __internal::__brick_transform_scan(__first + __i, __first + (__i + __len), __result + __i,
-                                                          __unary_op, _Tp{}, __binary_op, _Inclusive(), __is_vector)
+                                                          __unary_op, _Tp{}, __binary_op, _Inclusive(), _IsVector{})
                     .second;
             },
             __binary_op,
