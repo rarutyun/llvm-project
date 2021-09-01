@@ -37,19 +37,17 @@ _Tp __brick_transform_reduce(_ForwardIterator1, _ForwardIterator1, _ForwardItera
                              _BinaryOperation2,
                              /*__is_vector=*/std::false_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Tp, class _BinaryOperation1,
-          class _BinaryOperation2, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Tp,
+          class _BinaryOperation1, class _BinaryOperation2>
 _Tp
-__pattern_transform_reduce(_ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _Tp,
-                           _BinaryOperation1, _BinaryOperation2, _IsVector,
-                           /*is_parallel=*/std::false_type) noexcept;
+__pattern_transform_reduce(_Tag, _ExecutionPolicy&&, _ForwardIterator1, _ForwardIterator1, _ForwardIterator2, _Tp,
+                           _BinaryOperation1, _BinaryOperation2) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2, class _Tp,
-          class _BinaryOperation1, class _BinaryOperation2, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator1, class _RandomAccessIterator2,
+          class _Tp, class _BinaryOperation1, class _BinaryOperation2>
 _Tp
-__pattern_transform_reduce(_ExecutionPolicy&&, _RandomAccessIterator1, _RandomAccessIterator1, _RandomAccessIterator2,
-                           _Tp, _BinaryOperation1, _BinaryOperation2, _IsVector __is_vector,
-                           /*is_parallel=*/std::true_type);
+__pattern_transform_reduce(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator1,
+                           _RandomAccessIterator1, _RandomAccessIterator2, _Tp, _BinaryOperation1, _BinaryOperation2);
 
 //------------------------------------------------------------------------
 // transform_reduce (version with unary and binary functions)
@@ -63,19 +61,17 @@ template <class _ForwardIterator, class _Tp, class _BinaryOperation, class _Unar
 _Tp __brick_transform_reduce(_ForwardIterator, _ForwardIterator, _Tp, _BinaryOperation, _UnaryOperation,
                              /*is_vector=*/std::false_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _Tp, class _BinaryOperation, class _UnaryOperation,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Tp, class _BinaryOperation,
+          class _UnaryOperation>
 _Tp
-__pattern_transform_reduce(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Tp, _BinaryOperation,
-                           _UnaryOperation, _IsVector,
-                           /*is_parallel=*/std::false_type) noexcept;
+__pattern_transform_reduce(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Tp, _BinaryOperation,
+                           _UnaryOperation) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _Tp, class _BinaryOperation, class _UnaryOperation,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Tp, class _BinaryOperation,
+          class _UnaryOperation>
 _Tp
-__pattern_transform_reduce(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _Tp, _BinaryOperation,
-                           _UnaryOperation, _IsVector,
-                           /*is_parallel=*/std::true_type);
+__pattern_transform_reduce(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                           _Tp, _BinaryOperation, _UnaryOperation);
 
 //------------------------------------------------------------------------
 // transform_exclusive_scan
