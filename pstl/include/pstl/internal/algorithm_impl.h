@@ -1168,7 +1168,7 @@ __pattern_count(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _Ran
             __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, _SizeType(0),
             [__pred, __is_vector](_RandomAccessIterator __begin, _RandomAccessIterator __end,
                                   _SizeType __value) -> _SizeType {
-                return __value + __internal::__brick_count(__begin, __end, __pred, typename __backend_tag::_IsVector{});
+                return __value + __internal::__brick_count(__begin, __end, __pred, _IsVector{});
             },
             std::plus<_SizeType>());
     });
