@@ -1166,8 +1166,7 @@ __pattern_count(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _Ran
     return __internal::__except_handler([&]() {
         return __par_backend::__parallel_reduce(
             __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, _SizeType(0),
-            [__pred, __is_vector](_RandomAccessIterator __begin, _RandomAccessIterator __end,
-                                  _SizeType __value) -> _SizeType {
+            [__pred](_RandomAccessIterator __begin, _RandomAccessIterator __end, _SizeType __value) -> _SizeType {
                 return __value + __internal::__brick_count(__begin, __end, __pred, _IsVector{});
             },
             std::plus<_SizeType>());
@@ -1211,7 +1210,6 @@ __remove_elements(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _F
                   _ForwardIterator __last, _CalcMask __calc_mask)
 {
     using __backend_tag = typename decltype(__tag)::__backend_tag;
-    auto __is_vector = _IsVector{};
 
     typedef typename std::iterator_traits<_ForwardIterator>::difference_type _DifferenceType;
     typedef typename std::iterator_traits<_ForwardIterator>::value_type _Tp;
@@ -1294,8 +1292,6 @@ _RandomAccessIterator
 __pattern_unique(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first,
                  _RandomAccessIterator __last, _BinaryPredicate __pred) noexcept
 {
-    auto __is_vector = _IsVector{};
-
     typedef typename std::iterator_traits<_RandomAccessIterator>::reference _ReferenceType;
 
     if (__first == __last)
@@ -1775,7 +1771,7 @@ bool
 __pattern_is_partitioned(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                          _UnaryPredicate __pred) noexcept
 {
-    return __internal::__brick_is_partitioned(__first, __last, __pred, typename _Tag::_IsVector{});
+    return __internal::__brick_is_partitioned(__first, __last, __pred, typename _Tag::__is_vector{});
 }
 
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _UnaryPredicate>
@@ -1790,7 +1786,6 @@ __pattern_is_partitioned(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
     else
     {
         using __backend_tag = typename decltype(__tag)::__backend_tag;
-        auto __is_vector = _IsVector{};
 
         return __internal::__except_handler([&]() {
             // State of current range:
@@ -1814,10 +1809,10 @@ __pattern_is_partitioned(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
                                      __true_false, __true_false, __broken,     __broken, __all_false, __broken,
                                      __broken,     __broken,     __true_false, __broken};
 
-            __init = __par_backend::__parallel_reduce(__backend_tag,
-                std::forward<_ExecutionPolicy>(__exec), __first, __last, __init,
-                [&__pred, &__table, __is_vector](_RandomAccessIterator __i, _RandomAccessIterator __j,
-                                                 _ReduceType __value) -> _ReduceType {
+            __init = __par_backend::__parallel_reduce(
+                __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, __init,
+                [&__pred, &__table](_RandomAccessIterator __i, _RandomAccessIterator __j,
+                                    _ReduceType __value) -> _ReduceType {
                     if (__value == __broken)
                     {
                         return __broken;
@@ -1828,11 +1823,11 @@ __pattern_is_partitioned(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
                     {
                         // find first element that don't satisfy pred
                         _RandomAccessIterator __x =
-                            __internal::__brick_find_if(__i + 1, __j, std::not_fn(__pred), __is_vector);
+                            __internal::__brick_find_if(__i + 1, __j, std::not_fn(__pred), _IsVector{});
                         if (__x != __j)
                         {
                             // find first element after "x" that satisfy pred
-                            _RandomAccessIterator __y = __internal::__brick_find_if(__x + 1, __j, __pred, __is_vector);
+                            _RandomAccessIterator __y = __internal::__brick_find_if(__x + 1, __j, __pred, _IsVector{});
                             // if it was found then range isn't partitioned by pred
                             if (__y != __j)
                             {
@@ -1852,7 +1847,7 @@ __pattern_is_partitioned(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
                     { // if first element doesn't satisfy pred
                         // then we should find the first element that satisfy pred.
                         // If we found it then range isn't partitioned by pred
-                        if (__internal::__brick_find_if(__i + 1, __j, __pred, __is_vector) != __j)
+                        if (__internal::__brick_find_if(__i + 1, __j, __pred, _IsVector{}) != __j)
                         {
                             return __broken;
                         }
@@ -1913,7 +1908,6 @@ __pattern_partition(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, 
                     _RandomAccessIterator __last, _UnaryPredicate __pred)
 {
     using __backend_tag = typename decltype(__tag)::__backend_tag;
-    auto __is_vector = _IsVector{};
 
     // partitioned range: elements before pivot satisfy pred (true part),
     //                    elements after pivot don't satisfy pred (false part)
@@ -2003,7 +1997,7 @@ _BidirectionalIterator
 __pattern_stable_partition(_Tag, _ExecutionPolicy&&, _BidirectionalIterator __first, _BidirectionalIterator __last,
                            _UnaryPredicate __pred) noexcept
 {
-    return __internal::__brick_stable_partition(__first, __last, __pred, typename _Tag::_IsVector{});
+    return __internal::__brick_stable_partition(__first, __last, __pred, typename _Tag::__is_vector{});
 }
 
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _UnaryPredicate>
@@ -2012,7 +2006,6 @@ __pattern_stable_partition(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& _
                            _RandomAccessIterator __last, _UnaryPredicate __pred) noexcept
 {
     using __backend_tag = typename decltype(__tag)::__backend_tag;
-    auto __is_vector = _IsVector{};
 
     // partitioned range: elements before pivot satisfy pred (true part),
     //                    elements after pivot don't satisfy pred (false part)
@@ -2027,7 +2020,7 @@ __pattern_stable_partition(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& _
         _PartitionRange __init{__last, __last, __last};
 
         // lambda for merging two partitioned ranges to one partitioned range
-        auto __reductor = [__is_vector](_PartitionRange __val1, _PartitionRange __val2) -> _PartitionRange {
+        auto __reductor = [](_PartitionRange __val1, _PartitionRange __val2) -> _PartitionRange {
             auto __size1 = __val1.__end - __val1.__pivot;
             auto __new_begin = __val2.__begin - (__val1.__end - __val1.__begin);
 
@@ -2040,17 +2033,17 @@ __pattern_stable_partition(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& _
             // then we should swap the false part of left range and last part of true part of right range
             else
             {
-                __internal::__brick_rotate(__val1.__pivot, __val2.__begin, __val2.__pivot, __is_vector);
+                __internal::__brick_rotate(__val1.__pivot, __val2.__begin, __val2.__pivot, _IsVector{});
                 return {__new_begin, __val2.__pivot - __size1, __val2.__end};
             }
         };
 
         _PartitionRange __result = __par_backend::__parallel_reduce(
             __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, __init,
-            [&__pred, __is_vector, __reductor](_RandomAccessIterator __i, _RandomAccessIterator __j,
-                                               _PartitionRange __value) -> _PartitionRange {
+            [&__pred, __reductor](_RandomAccessIterator __i, _RandomAccessIterator __j,
+                                  _PartitionRange __value) -> _PartitionRange {
                 //1. serial stable_partition
-                _RandomAccessIterator __pivot = __internal::__brick_stable_partition(__i, __j, __pred, __is_vector);
+                _RandomAccessIterator __pivot = __internal::__brick_stable_partition(__i, __j, __pred, _IsVector{});
 
                 // 2. merging of two ranges (left and right respectively)
                 return __reductor(__value, {__i, __pivot, __j});
@@ -2337,7 +2330,7 @@ _ForwardIterator
 __pattern_adjacent_find(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                         _BinaryPredicate __pred, bool __or_semantic) noexcept
 {
-    return __internal::__brick_adjacent_find(__first, __last, __pred, typename _Tag::_IsVector{}, __or_semantic);
+    return __internal::__brick_adjacent_find(__first, __last, __pred, typename _Tag::__is_vector{}, __or_semantic);
 }
 
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _BinaryPredicate>
@@ -2349,13 +2342,12 @@ __pattern_adjacent_find(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __ex
         return __last;
 
     using __backend_tag = typename decltype(__tag)::__backend_tag;
-    auto __is_vector = _IsVector{};
 
     return __internal::__except_handler([&]() {
         return __par_backend::__parallel_reduce(
             __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last, __last,
-            [__last, __pred, __is_vector, __or_semantic](_RandomAccessIterator __begin, _RandomAccessIterator __end,
-                                                         _RandomAccessIterator __value) -> _RandomAccessIterator {
+            [__last, __pred, __or_semantic](_RandomAccessIterator __begin, _RandomAccessIterator __end,
+                                            _RandomAccessIterator __value) -> _RandomAccessIterator {
                 // TODO: investigate performance benefits from the use of shared variable for the result,
                 // checking (compare_and_swap idiom) its __value at __first.
                 if (__or_semantic && __value < __last)
@@ -2375,7 +2367,7 @@ __pattern_adjacent_find(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __ex
 
                     //correct the global result iterator if the "brick" returns a local "__last"
                     const _RandomAccessIterator __res =
-                        __internal::__brick_adjacent_find(__begin, __end, __pred, __is_vector, __or_semantic);
+                        __internal::__brick_adjacent_find(__begin, __end, __pred, _IsVector{}, __or_semantic);
                     if (__res < __end)
                         __value = __res;
                 }
@@ -2629,8 +2621,6 @@ _RandomAccessIterator
 __pattern_remove_if(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first,
                     _RandomAccessIterator __last, _UnaryPredicate __pred) noexcept
 {
-    auto __is_vector = _IsVector{};
-
     typedef typename std::iterator_traits<_RandomAccessIterator>::reference _ReferenceType;
 
     if (__first == __last || __first + 1 == __last)
@@ -3475,7 +3465,7 @@ _ForwardIterator
 __pattern_min_element(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                       _Compare __comp) noexcept
 {
-    return __internal::__brick_min_element(__first, __last, __comp, typename _Tag::_IsVector{});
+    return __internal::__brick_min_element(__first, __last, __comp, typename _Tag::__is_vector{});
 }
 
 template <typename _IsVector, typename _ExecutionPolicy, typename _RandomAccessIterator, typename _Compare>
@@ -3532,7 +3522,7 @@ std::pair<_ForwardIterator, _ForwardIterator>
 __pattern_minmax_element(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
                          _Compare __comp) noexcept
 {
-    return __internal::__brick_minmax_element(__first, __last, __comp, typename _Tag::_IsVector{});
+    return __internal::__brick_minmax_element(__first, __last, __comp, typename _Tag::__is_vector{});
 }
 
 template <typename _IsVector, typename _ExecutionPolicy, typename _RandomAccessIterator, typename _Compare>
@@ -3549,7 +3539,8 @@ __pattern_minmax_element(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
         typedef std::pair<_RandomAccessIterator, _RandomAccessIterator> _Result;
 
         return __par_backend::__parallel_reduce(
-            std::forward<_ExecutionPolicy>(__exec), __first + 1, __last, std::make_pair(__first, __first),
+            __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first + 1, __last,
+            std::make_pair(__first, __first),
             [=](_RandomAccessIterator __begin, _RandomAccessIterator __end, _Result __init) -> _Result {
                 const _Result __subresult = __internal::__brick_minmax_element(__begin, __end, __comp, _IsVector{});
                 return std::make_pair(
