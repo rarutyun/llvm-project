@@ -59,14 +59,12 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _Tp>
 transform_reduce(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1,
                  _ForwardIterator2 __first2, _Tp __init)
 {
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
+
     typedef typename iterator_traits<_ForwardIterator1>::value_type _InputType;
-    return __pstl::__internal::__pattern_transform_reduce(
-        std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __init, std::plus<_InputType>(),
-        std::multiplies<_InputType>(),
-        __pstl::__internal::__is_vectorization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2>(
-            __exec),
-        __pstl::__internal::__is_parallelization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2>(
-            __exec));
+    return __pstl::__internal::__pattern_transform_reduce(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
+                                                          __first1, __last1, __first2, __init, std::plus<_InputType>(),
+                                                          std::multiplies<_InputType>());
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _Tp, class _BinaryOperation1,
@@ -75,12 +73,10 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _Tp>
 transform_reduce(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1,
                  _ForwardIterator2 __first2, _Tp __init, _BinaryOperation1 __binary_op1, _BinaryOperation2 __binary_op2)
 {
-    return __pstl::__internal::__pattern_transform_reduce(
-        std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __init, __binary_op1, __binary_op2,
-        __pstl::__internal::__is_vectorization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2>(
-            __exec),
-        __pstl::__internal::__is_parallelization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2>(
-            __exec));
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2);
+    return __pstl::__internal::__pattern_transform_reduce(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
+                                                          __first1, __last1, __first2, __init, __binary_op1,
+                                                          __binary_op2);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator, class _Tp, class _BinaryOperation, class _UnaryOperation>
@@ -88,10 +84,9 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _Tp>
 transform_reduce(_ExecutionPolicy&& __exec, _ForwardIterator __first, _ForwardIterator __last, _Tp __init,
                  _BinaryOperation __binary_op, _UnaryOperation __unary_op)
 {
-    return __pstl::__internal::__pattern_transform_reduce(
-        std::forward<_ExecutionPolicy>(__exec), __first, __last, __init, __binary_op, __unary_op,
-        __pstl::__internal::__is_vectorization_preferred<_ExecutionPolicy, _ForwardIterator>(__exec),
-        __pstl::__internal::__is_parallelization_preferred<_ExecutionPolicy, _ForwardIterator>(__exec));
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first);
+    return __pstl::__internal::__pattern_transform_reduce(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec),
+                                                          __first, __last, __init, __binary_op, __unary_op);
 }
 
 // [exclusive.scan]
