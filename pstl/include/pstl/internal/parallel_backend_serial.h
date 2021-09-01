@@ -76,8 +76,8 @@ __parallel_reduce(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Ind
 
 template <class _ExecutionPolicy, class _Index, class _UnaryOp, class _Tp, class _BinaryOp, class _Reduce>
 _Tp
-__parallel_transform_reduce(_ExecutionPolicy&&, _Index __first, _Index __last, _UnaryOp, _Tp __init, _BinaryOp,
-                            _Reduce __reduce)
+__parallel_transform_reduce(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __first, _Index __last,
+                            _UnaryOp, _Tp __init, _BinaryOp, _Reduce __reduce)
 {
     return __reduce(__first, __last, __init);
 }
