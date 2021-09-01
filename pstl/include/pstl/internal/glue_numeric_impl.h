@@ -157,6 +157,7 @@ transform_exclusive_scan(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _
                          _UnaryOperation __unary_op)
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __result);
+
     return __pstl::__internal::__pattern_transform_scan(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
                                                         __last, __result, __unary_op, __init, __binary_op,
                                                         /*inclusive=*/std::false_type());
@@ -172,6 +173,7 @@ transform_inclusive_scan(_ExecutionPolicy&& __exec, _ForwardIterator1 __first, _
                          _Tp __init)
 {
     auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first, __result);
+
     return __pstl::__internal::__pattern_transform_scan(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first,
                                                         __last, __result, __unary_op, __init, __binary_op,
                                                         /*inclusive=*/std::true_type());

@@ -104,8 +104,8 @@ __pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&&, _R
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
           class _UnaryOperation, class _Tp, class _BinaryOperation, class _Inclusive>
 typename std::enable_if<std::is_floating_point<_Tp>::value, _OutputIterator>::type
-__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&&, _RandomAccessIterator,
-                         _RandomAccessIterator, _OutputIterator, _UnaryOperation, _Tp, _BinaryOperation, _Inclusive);
+__pattern_transform_scan(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                         _OutputIterator, _UnaryOperation, _Tp, _BinaryOperation, _Inclusive);
 
 //------------------------------------------------------------------------
 // adjacent_difference
