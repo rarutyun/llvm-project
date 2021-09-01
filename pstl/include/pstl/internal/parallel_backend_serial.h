@@ -76,8 +76,8 @@ __parallel_reduce(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Ind
 
 template <class _ExecutionPolicy, class _Index, class _UnaryOp, class _Tp, class _BinaryOp, class _Reduce>
 _Tp
-__parallel_transform_reduce(_ExecutionPolicy&&, _Index __first, _Index __last, _UnaryOp, _Tp __init, _BinaryOp,
-                            _Reduce __reduce)
+__parallel_transform_reduce(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __first, _Index __last,
+                            _UnaryOp, _Tp __init, _BinaryOp, _Reduce __reduce)
 {
     return __reduce(__first, __last, __init);
 }
@@ -97,7 +97,8 @@ __parallel_strict_scan(_ExecutionPolicy&&, _Index __n, _Tp __initial, _Rp __redu
 
 template <class _ExecutionPolicy, class _Index, class _UnaryOp, class _Tp, class _BinaryOp, class _Reduce, class _Scan>
 _Tp
-__parallel_transform_scan(_ExecutionPolicy&&, _Index __n, _UnaryOp, _Tp __init, _BinaryOp, _Reduce, _Scan __scan)
+__parallel_transform_scan(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __n, _UnaryOp, _Tp __init,
+                          _BinaryOp, _Reduce, _Scan __scan)
 {
     return __scan(_Index(0), __n, __init);
 }
@@ -113,9 +114,9 @@ __parallel_stable_sort(__pstl::__internal::__serial_backend, _ExecutionPolicy&&,
 template <class _ExecutionPolicy, typename _RandomAccessIterator1, typename _RandomAccessIterator2,
           typename _RandomAccessIterator3, typename _Compare, typename _LeafMerge>
 void
-__parallel_merge(_ExecutionPolicy&&, _RandomAccessIterator1 __first1, _RandomAccessIterator1 __last1,
-                 _RandomAccessIterator2 __first2, _RandomAccessIterator2 __last2, _RandomAccessIterator3 __outit,
-                 _Compare __comp, _LeafMerge __leaf_merge)
+__parallel_merge(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _RandomAccessIterator1 __first1,
+                 _RandomAccessIterator1 __last1, _RandomAccessIterator2 __first2, _RandomAccessIterator2 __last2,
+                 _RandomAccessIterator3 __outit, _Compare __comp, _LeafMerge __leaf_merge)
 {
     __leaf_merge(__first1, __last1, __first2, __last2, __outit, __comp);
 }

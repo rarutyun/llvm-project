@@ -194,8 +194,8 @@ struct __par_trans_red_body
 
 template <class _ExecutionPolicy, class _Index, class _Up, class _Tp, class _Cp, class _Rp>
 _Tp
-__parallel_transform_reduce(_ExecutionPolicy&&, _Index __first, _Index __last, _Up __u, _Tp __init, _Cp __combine,
-                            _Rp __brick_reduce)
+__parallel_transform_reduce(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __first, _Index __last,
+                            _Up __u, _Tp __init, _Cp __combine, _Rp __brick_reduce)
 {
     __tbb_backend::__par_trans_red_body<_Index, _Up, _Tp, _Cp, _Rp> __body(__u, __init, __combine, __brick_reduce);
     // The grain size of 3 is used in order to provide mininum 2 elements for each body
@@ -397,8 +397,8 @@ __parallel_strict_scan(_ExecutionPolicy&&, _Index __n, _Tp __initial, _Rp __redu
 
 template <class _ExecutionPolicy, class _Index, class _Up, class _Tp, class _Cp, class _Rp, class _Sp>
 _Tp
-__parallel_transform_scan(_ExecutionPolicy&&, _Index __n, _Up __u, _Tp __init, _Cp __combine, _Rp __brick_reduce,
-                          _Sp __scan)
+__parallel_transform_scan(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __n, _Up __u, _Tp __init,
+                          _Cp __combine, _Rp __brick_reduce, _Sp __scan)
 {
     __trans_scan_body<_Index, _Up, _Tp, _Cp, _Rp, _Sp> __body(__u, __init, __combine, __brick_reduce, __scan);
     auto __range = tbb::blocked_range<_Index>(0, __n);
@@ -1251,9 +1251,9 @@ operator()(__task* __self)
 template <class _ExecutionPolicy, typename _RandomAccessIterator1, typename _RandomAccessIterator2,
           typename _RandomAccessIterator3, typename _Compare, typename _LeafMerge>
 void
-__parallel_merge(_ExecutionPolicy&&, _RandomAccessIterator1 __xs, _RandomAccessIterator1 __xe,
-                 _RandomAccessIterator2 __ys, _RandomAccessIterator2 __ye, _RandomAccessIterator3 __zs, _Compare __comp,
-                 _LeafMerge __leaf_merge)
+__parallel_merge(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _RandomAccessIterator1 __xs,
+                 _RandomAccessIterator1 __xe, _RandomAccessIterator2 __ys, _RandomAccessIterator2 __ye,
+                 _RandomAccessIterator3 __zs, _Compare __comp, _LeafMerge __leaf_merge)
 {
     typedef typename std::iterator_traits<_RandomAccessIterator1>::difference_type _DifferenceType1;
     typedef typename std::iterator_traits<_RandomAccessIterator2>::difference_type _DifferenceType2;
