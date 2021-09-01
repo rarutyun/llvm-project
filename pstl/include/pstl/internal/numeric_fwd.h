@@ -125,17 +125,16 @@ _OutputIterator __brick_adjacent_difference(_RandomAccessIterator, _RandomAccess
                                             _BinaryOperation,
                                             /*is_vector*/ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _BinaryOperation,
-          class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _BinaryOperation>
 _OutputIterator
-__pattern_adjacent_difference(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator, _BinaryOperation,
-                              _IsVector, /*is_parallel*/ std::false_type) noexcept;
+__pattern_adjacent_difference(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator,
+                              _BinaryOperation) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _BinaryOperation,
-          class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
+          class _BinaryOperation>
 _OutputIterator
-__pattern_adjacent_difference(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator,
-                              _BinaryOperation, _IsVector, /*is_parallel*/ std::true_type);
+__pattern_adjacent_difference(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator,
+                              _RandomAccessIterator, _OutputIterator, _BinaryOperation);
 
 } // namespace __internal
 } // namespace __pstl

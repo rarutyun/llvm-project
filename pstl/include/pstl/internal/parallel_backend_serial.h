@@ -54,13 +54,6 @@ __cancel_execution()
 
 template <class _ExecutionPolicy, class _Index, class _Fp>
 void
-__parallel_for(_ExecutionPolicy&&, _Index __first, _Index __last, _Fp __f)
-{
-    __f(__first, __last);
-}
-
-template <class _ExecutionPolicy, class _Index, class _Fp>
-void
 __parallel_for(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __first, _Index __last, _Fp __f)
 {
     __f(__first, __last);
