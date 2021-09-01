@@ -1152,7 +1152,7 @@ template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Pre
 typename std::iterator_traits<_ForwardIterator>::difference_type
 __pattern_count(_Tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last, _Predicate __pred) noexcept
 {
-    return __internal::__brick_count(__first, __last, __pred, typename _Tag::_IsVector{});
+    return __internal::__brick_count(__first, __last, __pred, typename _Tag::__is_vector{});
 }
 
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Predicate>
