@@ -827,12 +827,10 @@ __pstl::__internal::__enable_if_execution_policy<_ExecutionPolicy, _ForwardItera
 merge(_ExecutionPolicy&& __exec, _ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2,
       _ForwardIterator2 __last2, _ForwardIterator __d_first, _Compare __comp)
 {
-    return __pstl::__internal::__pattern_merge(
-        std::forward<_ExecutionPolicy>(__exec), __first1, __last1, __first2, __last2, __d_first, __comp,
-        __pstl::__internal::__is_vectorization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2,
-                                                         _ForwardIterator>(__exec),
-        __pstl::__internal::__is_parallelization_preferred<_ExecutionPolicy, _ForwardIterator1, _ForwardIterator2,
-                                                           _ForwardIterator>(__exec));
+    auto __dispatch_tag = __pstl::__internal::__select_backend(__exec, __first1, __first2, __d_first);
+
+    return __pstl::__internal::__pattern_merge(__dispatch_tag, std::forward<_ExecutionPolicy>(__exec), __first1,
+                                               __last1, __first2, __last2, __d_first, __comp);
 }
 
 template <class _ExecutionPolicy, class _ForwardIterator1, class _ForwardIterator2, class _ForwardIterator>
