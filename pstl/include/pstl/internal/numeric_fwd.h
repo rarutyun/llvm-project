@@ -89,24 +89,23 @@ std::pair<_OutputIterator, _Tp> __brick_transform_scan(_RandomAccessIterator, _R
                                                        _UnaryOperation, _Tp, _BinaryOperation,
                                                        /*Inclusive*/ std::true_type) noexcept;
 
-template <class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
-          class _BinaryOperation, class _Inclusive, class _IsVector>
+template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _OutputIterator, class _UnaryOperation,
+          class _Tp, class _BinaryOperation, class _Inclusive>
 _OutputIterator
-__pattern_transform_scan(_ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator, _UnaryOperation, _Tp,
-                         _BinaryOperation, _Inclusive, _IsVector,
-                         /*is_parallel=*/std::false_type) noexcept;
+__pattern_transform_scan(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _OutputIterator, _UnaryOperation,
+                         _Tp, _BinaryOperation, _Inclusive) noexcept;
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
-          class _BinaryOperation, class _Inclusive, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
+          class _UnaryOperation, class _Tp, class _BinaryOperation, class _Inclusive>
 typename std::enable_if<!std::is_floating_point<_Tp>::value, _OutputIterator>::type
-__pattern_transform_scan(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator,
-                         _UnaryOperation, _Tp, _BinaryOperation, _Inclusive, _IsVector, /*is_parallel=*/std::true_type);
+__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&&, _RandomAccessIterator,
+                         _RandomAccessIterator, _OutputIterator, _UnaryOperation, _Tp, _BinaryOperation, _Inclusive);
 
-template <class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator, class _UnaryOperation, class _Tp,
-          class _BinaryOperation, class _Inclusive, class _IsVector>
+template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _OutputIterator,
+          class _UnaryOperation, class _Tp, class _BinaryOperation, class _Inclusive>
 typename std::enable_if<std::is_floating_point<_Tp>::value, _OutputIterator>::type
-__pattern_transform_scan(_ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator, _OutputIterator,
-                         _UnaryOperation, _Tp, _BinaryOperation, _Inclusive, _IsVector, /*is_parallel=*/std::true_type);
+__pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&&, _RandomAccessIterator,
+                         _RandomAccessIterator, _OutputIterator, _UnaryOperation, _Tp, _BinaryOperation, _Inclusive);
 
 //------------------------------------------------------------------------
 // adjacent_difference

@@ -97,7 +97,8 @@ __parallel_strict_scan(_ExecutionPolicy&&, _Index __n, _Tp __initial, _Rp __redu
 
 template <class _ExecutionPolicy, class _Index, class _UnaryOp, class _Tp, class _BinaryOp, class _Reduce, class _Scan>
 _Tp
-__parallel_transform_scan(_ExecutionPolicy&&, _Index __n, _UnaryOp, _Tp __init, _BinaryOp, _Reduce, _Scan __scan)
+__parallel_transform_scan(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __n, _UnaryOp, _Tp __init,
+                          _BinaryOp, _Reduce, _Scan __scan)
 {
     return __scan(_Index(0), __n, __init);
 }

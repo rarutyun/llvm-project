@@ -397,8 +397,8 @@ __parallel_strict_scan(_ExecutionPolicy&&, _Index __n, _Tp __initial, _Rp __redu
 
 template <class _ExecutionPolicy, class _Index, class _Up, class _Tp, class _Cp, class _Rp, class _Sp>
 _Tp
-__parallel_transform_scan(_ExecutionPolicy&&, _Index __n, _Up __u, _Tp __init, _Cp __combine, _Rp __brick_reduce,
-                          _Sp __scan)
+__parallel_transform_scan(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __n, _Up __u, _Tp __init,
+                          _Cp __combine, _Rp __brick_reduce, _Sp __scan)
 {
     __trans_scan_body<_Index, _Up, _Tp, _Cp, _Rp, _Sp> __body(__u, __init, __combine, __brick_reduce, __scan);
     auto __range = tbb::blocked_range<_Index>(0, __n);
