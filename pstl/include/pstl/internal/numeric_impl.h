@@ -277,7 +277,7 @@ __pattern_transform_scan(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __e
     }
     return __internal::__except_handler([&]() {
         __par_backend::__parallel_strict_scan(
-            std::forward<_ExecutionPolicy>(__exec), __n, __init,
+            __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __n, __init,
             [__first, __unary_op, __binary_op, __result](_DifferenceType __i, _DifferenceType __len) {
                 return __internal::__brick_transform_scan(__first + __i, __first + (__i + __len), __result + __i,
                                                           __unary_op, _Tp{}, __binary_op, _Inclusive(), _IsVector{})
@@ -349,14 +349,15 @@ __pattern_adjacent_difference(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&
     using __backend_tag = typename decltype(__tag)::__backend_tag;
 
     *__d_first = *__first;
-    __par_backend::__parallel_for(__backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last - 1,
-                                  [&__op, __d_first, __first](_RandomAccessIterator1 __b, _RandomAccessIterator1 __e) {
-                                      _RandomAccessIterator2 __d_b = __d_first + (__b - __first);
-                                      __internal::__brick_walk3(__b, __e, __b + 1, __d_b + 1,
-                                                                [&__op](_ReferenceType1 __x, _ReferenceType1 __y,
-                                                                        _ReferenceType2 __z) { __z = __op(__y, __x); },
-                                                                _IsVector{});
-                                  });
+    __par_backend::__parallel_for(
+        __backend_tag{}, std::forward<_ExecutionPolicy>(__exec), __first, __last - 1,
+        [&__op, __d_first, __first](_RandomAccessIterator1 __b, _RandomAccessIterator1 __e) {
+            _RandomAccessIterator2 __d_b = __d_first + (__b - __first);
+            __internal::__brick_walk3(
+                __b, __e, __b + 1, __d_b + 1,
+                [&__op](_ReferenceType1 __x, _ReferenceType1 __y, _ReferenceType2 __z) { __z = __op(__y, __x); },
+                _IsVector{});
+        });
     return __d_first + (__last - __first);
 }
 
