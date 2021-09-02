@@ -252,13 +252,12 @@ _RandomAccessIterator __brick_find_if(_RandomAccessIterator, _RandomAccessIterat
 
 template <class _Tag, class _ExecutionPolicy, class _ForwardIterator, class _Predicate>
 _ForwardIterator
-__pattern_find_if(_Tag __tag, _ExecutionPolicy&&, _ForwardIterator __first, _ForwardIterator __last,
-                  _Predicate __pred) noexcept;
+__pattern_find_if(_Tag, _ExecutionPolicy&&, _ForwardIterator, _ForwardIterator, _Predicate) noexcept;
 
 template <class _IsVector, class _ExecutionPolicy, class _RandomAccessIterator, class _Predicate>
 _RandomAccessIterator
-__pattern_find_if(__parallel_tag<_IsVector> __tag, _ExecutionPolicy&& __exec, _RandomAccessIterator __first,
-                  _RandomAccessIterator __last, _Predicate __pred);
+__pattern_find_if(__parallel_tag<_IsVector>, _ExecutionPolicy&&, _RandomAccessIterator, _RandomAccessIterator,
+                  _Predicate);
 
 //------------------------------------------------------------------------
 // find_end
@@ -400,14 +399,12 @@ _OutputIterator __brick_move(_RandomAccessIterator, _RandomAccessIterator, _Outp
 // swap_ranges
 //------------------------------------------------------------------------
 template <class _ForwardIterator, class _OutputIterator>
-_OutputIterator
-__brick_swap_ranges(_ForwardIterator __first, _ForwardIterator __last, _OutputIterator __result,
-                    /*vector=*/std::false_type) noexcept;
+_OutputIterator __brick_swap_ranges(_ForwardIterator, _ForwardIterator, _OutputIterator,
+                                    /*vector=*/std::false_type) noexcept;
 
 template <class _RandomAccessIterator, class _OutputIterator>
-_OutputIterator
-__brick_swap_ranges(_RandomAccessIterator __first, _RandomAccessIterator __last, _OutputIterator __result,
-                    /*vector=*/std::true_type) noexcept;
+_OutputIterator __brick_swap_ranges(_RandomAccessIterator, _RandomAccessIterator, _OutputIterator,
+                                    /*vector=*/std::true_type) noexcept;
 
 //------------------------------------------------------------------------
 // copy_if
