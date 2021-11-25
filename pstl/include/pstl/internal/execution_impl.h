@@ -36,9 +36,14 @@ struct __serial_backend
 struct __tbb_backend
 {
 };
+struct __openmp_backend
+{
+};
 
 #if defined(_PSTL_PAR_BACKEND_TBB)
 using __par_backend_tag = __tbb_backend;
+#elif defined(_PSTL_PAR_BACKEND_OPENMP)
+using __par_backend_tag = __openmp_backend;
 #elif defined(_PSTL_PAR_BACKEND_SERIAL)
 using __par_backend_tag = __serial_backend;
 #else
