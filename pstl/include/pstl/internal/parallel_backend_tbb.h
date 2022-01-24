@@ -102,7 +102,7 @@ class __parallel_for_body
 // wrapper over tbb::parallel_for
 template <class _ExecutionPolicy, class _Index, class _Fp>
 void
-__parallel_for(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __first, _Index __last, _Fp __f)
+__parallel_for(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _Index __first, _Index __last, _Fp __f)
 {
     tbb::this_task_arena::isolate([=]() {
         tbb::parallel_for(tbb::blocked_range<_Index>(__first, __last), __parallel_for_body<_Index, _Fp>(__f));
@@ -113,7 +113,7 @@ __parallel_for(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __f
 // wrapper over tbb::parallel_reduce
 template <class _ExecutionPolicy, class _Value, class _Index, typename _RealBody, typename _Reduction>
 _Value
-__parallel_reduce(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __first, _Index __last,
+__parallel_reduce(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _Index __first, _Index __last,
                   const _Value& __identity, const _RealBody& __real_body, const _Reduction& __reduction)
 {
     return tbb::this_task_arena::isolate([__first, __last, &__identity, &__real_body, &__reduction]() -> _Value {
@@ -194,7 +194,7 @@ struct __par_trans_red_body
 
 template <class _ExecutionPolicy, class _Index, class _Up, class _Tp, class _Cp, class _Rp>
 _Tp
-__parallel_transform_reduce(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __first, _Index __last,
+__parallel_transform_reduce(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _Index __first, _Index __last,
                             _Up __u, _Tp __init, _Cp __combine, _Rp __brick_reduce)
 {
     __tbb_backend::__par_trans_red_body<_Index, _Up, _Tp, _Cp, _Rp> __body(__u, __init, __combine, __brick_reduce);
@@ -357,8 +357,8 @@ __downsweep(_Index __i, _Index __m, _Index __tilesize, _Tp* __r, _Index __lastsi
 // T must have a trivial constructor and destructor.
 template <class _ExecutionPolicy, typename _Index, typename _Tp, typename _Rp, typename _Cp, typename _Sp, typename _Ap>
 void
-__parallel_strict_scan(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __n, _Tp __initial, _Rp __reduce,
-                       _Cp __combine, _Sp __scan, _Ap __apex)
+__parallel_strict_scan(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _Index __n, _Tp __initial,
+                       _Rp __reduce, _Cp __combine, _Sp __scan, _Ap __apex)
 {
     tbb::this_task_arena::isolate([=, &__combine]() {
         if (__n > 1)
@@ -397,7 +397,7 @@ __parallel_strict_scan(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _I
 
 template <class _ExecutionPolicy, class _Index, class _Up, class _Tp, class _Cp, class _Rp, class _Sp>
 _Tp
-__parallel_transform_scan(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _Index __n, _Up __u, _Tp __init,
+__parallel_transform_scan(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _Index __n, _Up __u, _Tp __init,
                           _Cp __combine, _Rp __brick_reduce, _Sp __scan)
 {
     __trans_scan_body<_Index, _Up, _Tp, _Cp, _Rp, _Sp> __body(__u, __init, __combine, __brick_reduce, __scan);
@@ -1157,7 +1157,7 @@ __stable_sort_func<_RandomAccessIterator1, _RandomAccessIterator2, _Compare, _Le
 
 template <class _ExecutionPolicy, typename _RandomAccessIterator, typename _Compare, typename _LeafSort>
 void
-__parallel_stable_sort(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _RandomAccessIterator __xs,
+__parallel_stable_sort(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _RandomAccessIterator __xs,
                        _RandomAccessIterator __xe, _Compare __comp, _LeafSort __leaf_sort, std::size_t __nsort = 0)
 {
     tbb::this_task_arena::isolate([=, &__nsort]() {
@@ -1251,7 +1251,7 @@ operator()(__task* __self)
 template <class _ExecutionPolicy, typename _RandomAccessIterator1, typename _RandomAccessIterator2,
           typename _RandomAccessIterator3, typename _Compare, typename _LeafMerge>
 void
-__parallel_merge(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _RandomAccessIterator1 __xs,
+__parallel_merge(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _RandomAccessIterator1 __xs,
                  _RandomAccessIterator1 __xe, _RandomAccessIterator2 __ys, _RandomAccessIterator2 __ye,
                  _RandomAccessIterator3 __zs, _Compare __comp, _LeafMerge __leaf_merge)
 {
@@ -1282,7 +1282,7 @@ __parallel_merge(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _RandomA
 //------------------------------------------------------------------------
 template <class _ExecutionPolicy, typename _F1, typename _F2>
 void
-__parallel_invoke(__pstl::__internal::__tbb_backend, _ExecutionPolicy&&, _F1&& __f1, _F2&& __f2)
+__parallel_invoke(__pstl::__internal::__tbb_backend_tag, _ExecutionPolicy&&, _F1&& __f1, _F2&& __f2)
 {
     //TODO: a version of tbb::this_task_arena::isolate with variadic arguments pack should be added in the future
     tbb::this_task_arena::isolate([&]() { tbb::parallel_invoke(std::forward<_F1>(__f1), std::forward<_F2>(__f2)); });

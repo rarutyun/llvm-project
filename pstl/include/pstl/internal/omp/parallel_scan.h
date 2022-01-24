@@ -97,7 +97,7 @@ __parallel_strict_scan_body(_Index __n, _Tp __initial, _Rp __reduce, _Cp __combi
 
 template <class _ExecutionPolicy, typename _Index, typename _Tp, typename _Rp, typename _Cp, typename _Sp, typename _Ap>
 void
-__parallel_strict_scan(__pstl::__internal::__openmp_backend, _ExecutionPolicy&&, _Index __n, _Tp __initial,
+__parallel_strict_scan(__pstl::__internal::__openmp_backend_tag, _ExecutionPolicy&&, _Index __n, _Tp __initial,
                        _Rp __reduce, _Cp __combine, _Sp __scan, _Ap __apex)
 {
     if (__n <= __default_chunk_size)

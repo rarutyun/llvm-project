@@ -30,22 +30,22 @@ using __are_iterators_of = std::conjunction<
 template <typename... _IteratorTypes>
 using __are_random_access_iterators = __are_iterators_of<std::random_access_iterator_tag, _IteratorTypes...>;
 
-struct __serial_backend
+struct __serial_backend_tag
 {
 };
-struct __tbb_backend
+struct __tbb_backend_tag
 {
 };
-struct __openmp_backend
+struct __openmp_backend_tag
 {
 };
 
 #if defined(_PSTL_PAR_BACKEND_TBB)
-using __par_backend_tag = __tbb_backend;
+using __par_backend_tag = __tbb_backend_tag;
 #elif defined(_PSTL_PAR_BACKEND_OPENMP)
-using __par_backend_tag = __openmp_backend;
+using __par_backend_tag = __openmp_backend_tag;
 #elif defined(_PSTL_PAR_BACKEND_SERIAL)
-using __par_backend_tag = __serial_backend;
+using __par_backend_tag = __serial_backend_tag;
 #else
 #    error "A parallel backend must be specified";
 #endif

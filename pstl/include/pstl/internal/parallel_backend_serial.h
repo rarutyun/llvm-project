@@ -54,14 +54,14 @@ __cancel_execution()
 
 template <class _ExecutionPolicy, class _Index, class _Fp>
 void
-__parallel_for(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __first, _Index __last, _Fp __f)
+__parallel_for(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _Index __first, _Index __last, _Fp __f)
 {
     __f(__first, __last);
 }
 
 template <class _ExecutionPolicy, class _Value, class _Index, typename _RealBody, typename _Reduction>
 _Value
-__parallel_reduce(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __first, _Index __last,
+__parallel_reduce(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _Index __first, _Index __last,
                   const _Value& __identity, const _RealBody& __real_body, const _Reduction&)
 {
     if (__first == __last)
@@ -76,7 +76,7 @@ __parallel_reduce(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Ind
 
 template <class _ExecutionPolicy, class _Index, class _UnaryOp, class _Tp, class _BinaryOp, class _Reduce>
 _Tp
-__parallel_transform_reduce(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __first, _Index __last,
+__parallel_transform_reduce(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _Index __first, _Index __last,
                             _UnaryOp, _Tp __init, _BinaryOp, _Reduce __reduce)
 {
     return __reduce(__first, __last, __init);
@@ -84,7 +84,7 @@ __parallel_transform_reduce(__pstl::__internal::__serial_backend, _ExecutionPoli
 
 template <class _ExecutionPolicy, typename _Index, typename _Tp, typename _Rp, typename _Cp, typename _Sp, typename _Ap>
 void
-__parallel_strict_scan(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __n, _Tp __initial,
+__parallel_strict_scan(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _Index __n, _Tp __initial,
                        _Rp __reduce, _Cp __combine, _Sp __scan, _Ap __apex)
 {
     _Tp __sum = __initial;
@@ -97,15 +97,15 @@ __parallel_strict_scan(__pstl::__internal::__serial_backend, _ExecutionPolicy&&,
 
 template <class _ExecutionPolicy, class _Index, class _UnaryOp, class _Tp, class _BinaryOp, class _Reduce, class _Scan>
 _Tp
-__parallel_transform_scan(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Index __n, _UnaryOp, _Tp __init,
-                          _BinaryOp, _Reduce, _Scan __scan)
+__parallel_transform_scan(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _Index __n, _UnaryOp,
+                          _Tp __init, _BinaryOp, _Reduce, _Scan __scan)
 {
     return __scan(_Index(0), __n, __init);
 }
 
 template <class _ExecutionPolicy, typename _RandomAccessIterator, typename _Compare, typename _LeafSort>
 void
-__parallel_stable_sort(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _RandomAccessIterator __first,
+__parallel_stable_sort(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _RandomAccessIterator __first,
                        _RandomAccessIterator __last, _Compare __comp, _LeafSort __leaf_sort, std::size_t = 0)
 {
     __leaf_sort(__first, __last, __comp);
@@ -114,7 +114,7 @@ __parallel_stable_sort(__pstl::__internal::__serial_backend, _ExecutionPolicy&&,
 template <class _ExecutionPolicy, typename _RandomAccessIterator1, typename _RandomAccessIterator2,
           typename _RandomAccessIterator3, typename _Compare, typename _LeafMerge>
 void
-__parallel_merge(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _RandomAccessIterator1 __first1,
+__parallel_merge(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _RandomAccessIterator1 __first1,
                  _RandomAccessIterator1 __last1, _RandomAccessIterator2 __first2, _RandomAccessIterator2 __last2,
                  _RandomAccessIterator3 __outit, _Compare __comp, _LeafMerge __leaf_merge)
 {
@@ -123,7 +123,7 @@ __parallel_merge(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _Rand
 
 template <class _ExecutionPolicy, typename _F1, typename _F2>
 void
-__parallel_invoke(__pstl::__internal::__serial_backend, _ExecutionPolicy&&, _F1&& __f1, _F2&& __f2)
+__parallel_invoke(__pstl::__internal::__serial_backend_tag, _ExecutionPolicy&&, _F1&& __f1, _F2&& __f2)
 {
     std::forward<_F1>(__f1)();
     std::forward<_F2>(__f2)();

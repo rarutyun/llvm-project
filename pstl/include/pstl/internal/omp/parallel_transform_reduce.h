@@ -81,7 +81,7 @@ __transform_reduce_body(_RandomAccessIterator __first, _RandomAccessIterator __l
 template <class _ExecutionPolicy, class _RandomAccessIterator, class _UnaryOp, class _Value, class _Combiner,
           class _Reduction>
 _Value
-__parallel_transform_reduce(__pstl::__internal::__openmp_backend, _ExecutionPolicy&&, _RandomAccessIterator __first,
+__parallel_transform_reduce(__pstl::__internal::__openmp_backend_tag, _ExecutionPolicy&&, _RandomAccessIterator __first,
                             _RandomAccessIterator __last, _UnaryOp __unary_op, _Value __init, _Combiner __combiner,
                             _Reduction __reduction)
 {
