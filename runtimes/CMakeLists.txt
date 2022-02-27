@@ -178,6 +178,8 @@ if(LLVM_INCLUDE_TESTS)
   set(LLVM_LIT_ARGS "${LIT_ARGS_DEFAULT}" CACHE STRING "Default options for lit")
 endif()
 
+message(STATUS "------ LLVM_ENABLE_RUNTIMES=${LLVM_ENABLE_RUNTIMES}")
+message(STATUS "------ runtimes=${runtimes}")
 # llvm-libgcc incorporates both compiler-rt and libunwind as subprojects with very
 # specific flags, which causes clashes when they're independently built too.
 if("llvm-libgcc" IN_LIST runtimes)
@@ -198,6 +200,7 @@ endif()
 # We do this in two loops so that HAVE_* is set for each runtime before the
 # other runtimes are added.
 foreach(entry ${runtimes})
+  message(STATUS "------- ${entry}")
   get_filename_component(projName ${entry} NAME)
 
   # Between each sub-project we want to cache and clear the LIT properties

@@ -535,6 +535,20 @@ steps:
           limit: 2
     timeout_in_minutes: 120
 
+  # TODO: When this is ready, this should become the default and we can remove this job.
+  - label: "With PSTL support"
+    command: "libcxx/utils/ci/run-buildbot with-pstl"
+    artifact_paths:
+      - "**/test-results.xml"
+    agents:
+      queue: "libcxx-builders"
+      os: "linux"
+    retry:
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 2
+    timeout_in_minutes: 120
+
   # Other non-testing CI jobs
   - label: "Benchmarks"
     command: "libcxx/utils/ci/run-buildbot benchmarks"

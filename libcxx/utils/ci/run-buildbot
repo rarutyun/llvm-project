@@ -92,7 +92,7 @@ function generate-cmake-base() {
 
 function generate-cmake() {
     generate-cmake-base \
-          -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
+          -DLLVM_ENABLE_RUNTIMES="pstl;libcxx;libcxxabi;libunwind" \
           -DLIBCXX_CXX_ABI=libcxxabi \
           "${@}"
 }
@@ -375,6 +375,17 @@ generic-no-wide-characters)
     clean
     generate-cmake -C "${MONOREPO_ROOT}/libcxx/cmake/caches/Generic-no-wide-characters.cmake" \
                    -DLIBUNWIND_TEST_CONFIG="llvm-libunwind-shared.cfg.in"
+    check-runtimes
+;;
+with-pstl)
+    export CXX=clang++
+    export CC=clang
+    clean
+    generate-cmake -C "${MONOREPO_ROOT}/libcxx/cmake/caches/Generic-cxx20.cmake" \
+                   -DLIBCXX_TEST_CONFIG="llvm-libc++-shared.cfg.in" \
+                   -DLIBUNWIND_TEST_CONFIG="llvm-libunwind-shared.cfg.in" \
+                   -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
+                   -DLIBCXX_ENABLE_PARALLEL_ALGORITHMS=ON
     check-runtimes
 ;;
 generic-no-experimental)
