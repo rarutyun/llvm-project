@@ -28,8 +28,8 @@
 #endif
 
 #if !defined(_PSTL_ASSERT)
-#    include <cassert>
-#    define _PSTL_ASSERT(pred) (assert((pred)))
+#    include <__assert>
+#    define _PSTL_ASSERT(pred) (_LIBCPP_ASSERT((pred), ""))
 #endif
 
 // Portability "#pragma" definition

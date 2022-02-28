@@ -26,6 +26,9 @@
 
 _PSTL_HIDE_FROM_ABI_PUSH
 
+_LIBCPP_PUSH_MACROS
+#include <__undef_macros>
+
 namespace __pstl
 {
 namespace __internal
@@ -3813,6 +3816,8 @@ __pattern_lexicographical_compare(__parallel_tag<_IsVector> __tag, _ExecutionPol
 
 } // namespace __internal
 } // namespace __pstl
+
+_LIBCPP_POP_MACROS
 
 _PSTL_HIDE_FROM_ABI_POP
 
