@@ -378,8 +378,8 @@ generic-no-wide-characters)
     check-runtimes
 ;;
 with-pstl)
-    export CC=clang-12
-    export CXX=clang++-12
+    export CC=clang
+    export CXX=clang++
     clean
     generate-cmake -C "${MONOREPO_ROOT}/libcxx/cmake/caches/Generic-cxx20.cmake" \
                    -DLIBCXX_TEST_CONFIG="llvm-libc++-shared.cfg.in" \
