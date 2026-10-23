@@ -10036,9 +10036,15 @@ bool Sema::ShouldDeleteSpecialMember(CXXMethodDecl *MD,
   //   deleted (8.4.3) default constructor and a deleted copy
   //   assignment operator.
   // C++2a adds back these operators if the lambda has no lambda-capture.
-  if (RD->isLambda() && !RD->lambdaIsDefaultConstructibleAndAssignable() &&
-      (CSM == CXXSpecialMemberKind::DefaultConstructor ||
-       CSM == CXXSpecialMemberKind::CopyAssignment)) {
+  //
+  // These are two separate questions, and -fassignable-lambdas answers only
+  // the second one, so don't merge the conditions: an assignable closure type
+  // still has no default constructor.
+  if (RD->isLambda() &&
+      ((CSM == CXXSpecialMemberKind::DefaultConstructor &&
+        !RD->lambdaIsDefaultConstructible()) ||
+       (CSM == CXXSpecialMemberKind::CopyAssignment &&
+        !RD->lambdaIsAssignable()))) {
     if (Diagnose)
       Diag(RD->getLocation(), diag::note_lambda_decl);
     return true;

@@ -7596,6 +7596,11 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
       types::isCXX(InputType))
     CmdArgs.push_back("-fcoro-aligned-allocation");
 
+  if (Args.hasFlag(options::OPT_fassignable_lambdas,
+                   options::OPT_fno_assignable_lambdas, false) &&
+      types::isCXX(InputType))
+    CmdArgs.push_back("-fassignable-lambdas");
+
   if (Args.hasFlag(options::OPT_fdefer_ts, options::OPT_fno_defer_ts,
                    /*Default=*/false))
     CmdArgs.push_back("-fdefer-ts");

@@ -772,7 +772,7 @@ public:
     return (!getLangOpts().HLSL || isHLSLBuiltinRecord()) &&
            ((!data().UserDeclaredConstructor &&
             !(data().DeclaredSpecialMembers & SMF_DefaultConstructor) &&
-            (!isLambda() || lambdaIsDefaultConstructibleAndAssignable())) ||
+            (!isLambda() || lambdaIsDefaultConstructible())) ||
            // FIXME: Proposed fix to core wording issue: if a class inherits
            // a default constructor and doesn't explicitly declare one, one
            // is declared implicitly.
@@ -996,7 +996,7 @@ public:
            !hasUserDeclaredCopyAssignment() &&
            !hasUserDeclaredMoveConstructor() &&
            !hasUserDeclaredDestructor() &&
-           (!isLambda() || lambdaIsDefaultConstructibleAndAssignable());
+           (!isLambda() || lambdaIsAssignable());
   }
 
   /// Determine whether we need to eagerly declare a move assignment
@@ -1036,9 +1036,15 @@ public:
   /// a template).
   bool isGenericLambda() const;
 
-  /// Determine whether this lambda should have an implicit default constructor
-  /// and copy and move assignment operators.
-  bool lambdaIsDefaultConstructibleAndAssignable() const;
+  /// Determine whether this lambda should have an implicit default
+  /// constructor.
+  bool lambdaIsDefaultConstructible() const;
+
+  /// Determine whether this lambda should have implicit copy and move
+  /// assignment operators. When true, whether those operators end up deleted
+  /// is decided by the ordinary rules applied to the capture fields, exactly
+  /// as for any other class.
+  bool lambdaIsAssignable() const;
 
   /// Retrieve the lambda call operator of the closure type
   /// if this is a closure type.

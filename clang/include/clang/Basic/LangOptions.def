@@ -279,6 +279,7 @@ LANGOPT(HIPStdParInterposeAlloc, 1, 0, NotCompatible, "Replace allocations / dea
 LANGOPT(OpenACC           , 1, 0, NotCompatible, "OpenACC Enabled")
 
 LANGOPT(MSVCEnableStdcMacro , 1, 0, NotCompatible, "Define __STDC__ with '-fms-compatibility'")
+LANGOPT(AssignableLambdas , 1, 0, NotCompatible, "assignment operators of closure types follow the ordinary rules for classes")
 LANGOPT(SizedDeallocation , 1, 0, NotCompatible, "sized deallocation")
 LANGOPT(AlignedAllocation , 1, 0, NotCompatible, "aligned allocation")
 LANGOPT(AlignedAllocationUnavailable, 1, 0, NotCompatible, "aligned allocation functions are unavailable")

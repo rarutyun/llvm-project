@@ -383,6 +383,17 @@ documentation](CIR/index.md) for more information regarding ClangIR's status and
   {doc}`Return Address Authentication Hardening <ReturnAddressAuthenticationHardening>`
   for more information.
 
+- Added `-fassignable-lambdas`, a non-conforming extension that drops the
+  special case in [expr.prim.lambda.capture]p11 which deletes the copy assignment
+  operator of every closure type that has a *lambda-capture*. With the flag,
+  the copy and move assignment operators of a closure type are declared and
+  deleted according to the ordinary rules applied to its capture fields, just
+  as for any other class: a lambda capturing an `int` by value is trivially
+  assignable, one capturing by reference is not assignable, and one holding a
+  move-only capture is move-assignable but not copy-assignable. This does not
+  make a capturing lambda default-constructible. The flag is off by default
+  and is not implied by any `-std=` setting.
+
 ### Deprecated Compiler Flags
 
 ### Modified Compiler Flags

@@ -4178,6 +4178,13 @@ defm aligned_allocation : BoolFOption<"aligned-allocation",
   LangOpts<"AlignedAllocation">, Default<cpp17.KeyPath>,
   PosFlag<SetTrue, [], [ClangOption], "Enable C++17 aligned allocation functions">,
   NegFlag<SetFalse>, BothFlags<[], [ClangOption, CC1Option]>>;
+defm assignable_lambdas : BoolFOption<"assignable-lambdas",
+  LangOpts<"AssignableLambdas">, DefaultFalse,
+  PosFlag<SetTrue, [], [ClangOption, CC1Option],
+          "Give closure types copy and move assignment operators that follow "
+          "the ordinary rules for classes, instead of always deleting them "
+          "when the lambda has a capture">,
+  NegFlag<SetFalse>>;
 def fnew_alignment_EQ : Joined<["-"], "fnew-alignment=">,
   HelpText<"Specifies the largest alignment guaranteed by '::operator new(size_t)'">,
   MetaVarName<"<align>">, Group<f_Group>, Visibility<[ClangOption, CC1Option]>,

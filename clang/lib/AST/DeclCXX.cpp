@@ -729,15 +729,36 @@ bool CXXRecordDecl::hasSubobjectAtOffsetZeroOfEmptyBaseType(
   return false;
 }
 
-bool CXXRecordDecl::lambdaIsDefaultConstructibleAndAssignable() const {
+bool CXXRecordDecl::lambdaIsDefaultConstructible() const {
   assert(isLambda() && "not a lambda");
 
   // C++2a [expr.prim.lambda.capture]p11:
   //   The closure type associated with a lambda-expression has no default
   //   constructor if the lambda-expression has a lambda-capture and a
-  //   defaulted default constructor otherwise. It has a deleted copy
-  //   assignment operator if the lambda-expression has a lambda-capture and
-  //   defaulted copy and move assignment operators otherwise.
+  //   defaulted default constructor otherwise.
+  //
+  // C++17 [expr.prim.lambda]p21:
+  //   The closure type associated with a lambda-expression has no default
+  //   constructor and a deleted copy assignment operator.
+  if (!isCapturelessLambda())
+    return false;
+  return getASTContext().getLangOpts().CPlusPlus20;
+}
+
+bool CXXRecordDecl::lambdaIsAssignable() const {
+  assert(isLambda() && "not a lambda");
+
+  // As an extension, -fassignable-lambdas drops the special case for closure
+  // types entirely: their assignment operators are then declared and deleted
+  // according to the ordinary rules applied to the capture fields, just as for
+  // any other class.
+  if (getASTContext().getLangOpts().AssignableLambdas)
+    return true;
+
+  // C++2a [expr.prim.lambda.capture]p11:
+  //   [The closure type] has a deleted copy assignment operator if the
+  //   lambda-expression has a lambda-capture and defaulted copy and move
+  //   assignment operators otherwise.
   //
   // C++17 [expr.prim.lambda]p21:
   //   The closure type associated with a lambda-expression has no default
@@ -1646,7 +1667,10 @@ void CXXRecordDecl::setCaptures(ASTContext &Context,
     ToCapture++;
   }
 
-  if (!lambdaIsDefaultConstructibleAndAssignable())
+  // With -fassignable-lambdas we leave the flags computed from the capture
+  // fields by addedMember() alone, so that assignment of a closure type is
+  // deleted under exactly the same circumstances as for any other class.
+  if (!lambdaIsAssignable())
     Data.DefaultedCopyAssignmentIsDeleted = true;
 }
 
