@@ -749,11 +749,18 @@ bool CXXRecordDecl::lambdaIsAssignable() const {
   assert(isLambda() && "not a lambda");
 
   // As an extension, -fassignable-lambdas drops the special case for closure
-  // types entirely: their assignment operators are then declared and deleted
-  // according to the ordinary rules applied to the capture fields, just as for
-  // any other class.
+  // types: their assignment operators are then declared and deleted according
+  // to the ordinary rules applied to the capture fields, just as for any other
+  // class.
+  //
+  // The exception is a capture of *this by reference. It is stored as a
+  // pointer, which would make the closure type assignable, but it is a
+  // by-reference capture like any other ([&, this] is equivalent to [&]), so
+  // treat it like one that is stored as a reference member: not assignable.
   if (getASTContext().getLangOpts().AssignableLambdas)
-    return true;
+    return llvm::none_of(captures(), [](const LambdaCapture &C) {
+      return C.getCaptureKind() == LCK_This;
+    });
 
   // C++2a [expr.prim.lambda.capture]p11:
   //   [The closure type] has a deleted copy assignment operator if the
@@ -1667,9 +1674,10 @@ void CXXRecordDecl::setCaptures(ASTContext &Context,
     ToCapture++;
   }
 
-  // With -fassignable-lambdas we leave the flags computed from the capture
-  // fields by addedMember() alone, so that assignment of a closure type is
-  // deleted under exactly the same circumstances as for any other class.
+  // With -fassignable-lambdas we (mostly) leave the flags computed from the
+  // capture fields by addedMember() alone, so that assignment of a closure
+  // type is deleted under the same circumstances as for any other class. See
+  // lambdaIsAssignable() for the exception.
   if (!lambdaIsAssignable())
     Data.DefaultedCopyAssignmentIsDeleted = true;
 }

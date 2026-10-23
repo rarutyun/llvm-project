@@ -390,9 +390,12 @@ documentation](CIR/index.md) for more information regarding ClangIR's status and
   deleted according to the ordinary rules applied to its capture fields, just
   as for any other class: a lambda capturing an `int` by value is trivially
   assignable, one capturing by reference is not assignable, and one holding a
-  move-only capture is move-assignable but not copy-assignable. This does not
-  make a capturing lambda default-constructible. The flag is off by default
-  and is not implied by any `-std=` setting.
+  move-only capture is move-assignable but not copy-assignable. Capturing
+  `*this` by reference (`[this]`, or implicitly via `[&]` or `[=]`) also makes
+  the closure type not assignable, even though the capture is stored as a
+  pointer; `[self = this]` copies the pointer and remains assignable. This
+  does not make a capturing lambda default-constructible. The flag is off by
+  default and is not implied by any `-std=` setting.
 
 ### Deprecated Compiler Flags
 

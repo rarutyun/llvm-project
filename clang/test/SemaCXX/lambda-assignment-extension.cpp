@@ -94,15 +94,63 @@ void move_only_capture() {
   x = static_cast<X &&>(x);
 }
 
+// [this] captures *this by reference. Although it is stored as a pointer, it
+// is treated like any other by-reference capture: not assignable.
 struct S {
   int n;
   void capture_this() {
-    // 'this' is captured as a pointer member, which is assignable.
-    auto x = [this] { return n; };
+    auto x = [this] { return n; }; // expected-note {{lambda expression begins here}}
     using X = decltype(x);
-    static_assert(copy_assignable<X>);
-    static_assert(trivially_copy_assignable<X>);
-    x = x;
+    static_assert(!copy_assignable<X>);
+    static_assert(!move_assignable<X>);
+    x = x; // expected-error {{cannot be assigned because its copy assignment operator is implicitly deleted}}
+  }
+  void capture_this_with_default() {
+    auto x = [&, this] { return n; }; // equivalent to [&]
+    static_assert(!copy_assignable<decltype(x)>);
+    static_assert(!move_assignable<decltype(x)>);
+  }
+  void capture_this_implicitly() {
+    auto x = [&] { return n; }; // captures *this by reference
+    static_assert(!copy_assignable<decltype(x)>);
+    static_assert(!move_assignable<decltype(x)>);
+  }
+  void capture_this_copy_default() {
+    // [=] also captures *this by reference (deprecated in C++20).
+    auto x = [=] { return n; }; // cxx20-warning {{implicit capture of 'this' with a capture default of '=' is deprecated}} \
+                                // cxx20-note {{add an explicit capture of 'this'}}
+    static_assert(!copy_assignable<decltype(x)>);
+    static_assert(!move_assignable<decltype(x)>);
+  }
+  void capture_this_with_other() {
+    int i = 0;
+    auto x = [this, i] { return n + i; };
+    static_assert(!copy_assignable<decltype(x)>);
+    static_assert(!move_assignable<decltype(x)>);
+  }
+  // An init-capture copies the pointer by value, which is an ordinary pointer
+  // member: assignable, and assignment rebinds it.
+  void capture_this_pointer_by_copy() {
+    auto x = [self = this] { return self->n; };
+    static_assert(copy_assignable<decltype(x)>);
+    static_assert(trivially_copy_assignable<decltype(x)>);
+  }
+  void capture_this_const() const {
+    auto x = [this] { return n; };
+    static_assert(!copy_assignable<decltype(x)>);
+    static_assert(!move_assignable<decltype(x)>);
+  }
+  // [*this] captures a copy, so it follows the assignability of S.
+  void capture_star_this() {
+    auto x = [*this] { return n; };
+    static_assert(copy_assignable<decltype(x)>);
+    static_assert(move_assignable<decltype(x)>);
+  }
+  // ... which in a const member function is a const S member.
+  void capture_star_this_const() const {
+    auto x = [*this] { return n; };
+    static_assert(!copy_assignable<decltype(x)>);
+    static_assert(!move_assignable<decltype(x)>);
   }
 };
 
